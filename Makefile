@@ -3,6 +3,7 @@ GPRBUILD=gprbuild
 GPRFLAGS=--target=$(TARGET)
 BUILDDIR=Ada_Drivers_Library/examples/shared/hello_world_blinky/obj/stm32f429disco
 CROSS=arm-none-eabi
+PATH:=$(HOME)/opt/GNAT/2018-arm-elf/bin:$(PATH)
 
 OBJCOPY=$(CROSS)-objcopy
 
