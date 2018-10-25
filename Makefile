@@ -33,4 +33,3 @@ flash:: $(BIN)
 
 clean::
 	$(RM) $(ELF) $(HEX) $(OBJ) $(BIN)
-
