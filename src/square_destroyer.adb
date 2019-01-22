@@ -45,8 +45,7 @@ with Ada.Numerics.discrete_Random;
 package body Square_Destroyer is
 
 procedure Init_Grid(g : out Grid) is
-    subtype Rand_Range is Square;
-    package Rand_Int is new Ada.Numerics.Discrete_Random(Rand_Range);
+    package Rand_Int is new Ada.Numerics.Discrete_Random(Square);
     gen : Rand_Int.Generator;
 begin
     for i in g'Range(1) loop
