@@ -29,7 +29,7 @@ $(HEX): $(ELF)
 $(BIN): $(ELF)
 	$(OBJCOPY) -O binary $(PROJ).elf $(PROJ).bin
 
-$(ELF):
+$(ELF):: FORCE
 	$(GPRBUILD) -XBUILD=$(BUILD) $(GPR)
 	cp $(BUILDDIR)/$(PROJ) $(ELF)
 
@@ -41,4 +41,6 @@ clean::
 	$(GPRCLEAN)
 	$(RM) $(ELF) $(HEX) $(OBJ) $(BIN)
 
-.PHONY: all clean flash
+FORCE:
+
+.PHONY: all clean flash FORCE

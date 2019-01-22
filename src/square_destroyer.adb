@@ -36,7 +36,6 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 
 with STM32.Board;           use STM32.Board;
 with HAL.Bitmap;            use HAL.Bitmap;
-pragma Warnings (Off, "referenced");
 with HAL.Touch_Panel;       use HAL.Touch_Panel;
 with STM32.User_Button;     use STM32;
 with BMP_Fonts;
