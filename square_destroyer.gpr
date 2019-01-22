@@ -7,7 +7,7 @@ project Square_Destroyer extends "drivers/examples/shared/common/common.gpr" is
   for Source_Dirs use ("src");
   for Main use ("main.adb");
   for Languages use ("Ada");
-  for Object_Dir use "obj/stm32f429/square_destroyer";
+  for Object_Dir use "obj/stm32f429/main";
   for Create_Missing_Dirs use "True";
 
   package Compiler renames STM32F429_Discovery_Full.Compiler;

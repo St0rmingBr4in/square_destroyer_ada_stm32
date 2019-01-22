@@ -48,6 +48,7 @@ procedure Init_Grid(g : out Grid) is
     package Rand_Int is new Ada.Numerics.Discrete_Random(Square);
     gen : Rand_Int.Generator;
 begin
+    Rand_Int.Reset(gen);
     for i in g'Range(1) loop
         for j in g'Range(2) loop
             g(i, j) := Square(Rand_Int.Random(gen));
@@ -60,7 +61,12 @@ procedure Square_Destroyer
 is
    BG : Bitmap_Color := (Alpha => 255, others => 0);
    Ball_Pos   : Point := (20, 280);
+   Rect_Pos   : Point := (0, 0);
+   r : Rect := (Rect_Pos, 40, 40);
    g : Grid;
+   type ColorMap is array(Square) of HAL.Bitmap.Bitmap_Color;
+   m : ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green, HAL.Bitmap.Red,
+   HAL.Bitmap.Yellow, HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
 begin
     Init_Grid(g);
    --  Initialize LCD
@@ -84,15 +90,15 @@ begin
    Display.Update_Layer (1, Copy_Back => True);
 
    loop
-      if User_Button.Has_Been_Pressed then
-         BG := HAL.Bitmap.Dark_Orange;
-      end if;
+    --  if User_Button.Has_Been_Pressed then
+    --     BG := HAL.Bitmap.Dark_Orange;
+    --  end if;
 
-      Display.Hidden_Buffer (1).Set_Source (BG);
-      Display.Hidden_Buffer (1).Fill;
+--      Display.Hidden_Buffer (1).Set_Source (BG);
+--      Display.Hidden_Buffer (1).Fill;
 
-      Display.Hidden_Buffer (1).Set_Source (HAL.Bitmap.Blue);
-      Display.Hidden_Buffer (1).Fill_Circle (Ball_Pos, 10);
+--      Display.Hidden_Buffer (1).Set_Source (HAL.Bitmap.Blue);
+--      Display.Hidden_Buffer (1).Fill_Circle (Ball_Pos, 10);
 
 
       declare
@@ -105,7 +111,15 @@ begin
          end case;
       end;
 
-      --  Update screen
+    for i in g'Range(1) loop
+        for j in g'Range(2) loop
+            Display.Hidden_Buffer (1).Set_Source (m(g(i,j)));
+            Rect_Pos := (i * 40, j * 40);
+            r := (Rect_Pos, 40, 40);
+            Display.Hidden_Buffer (1).Fill_Rect (r);
+        end loop;
+    end loop;
+     --  Update screen
       Display.Update_Layer (1, Copy_Back => True);
 
    end loop;

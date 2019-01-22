@@ -1,4 +1,4 @@
-PROJ	= square_destroyer
+PROJ	= main
 
 BUILD=Debug # Possible values are Debug and Production
 
