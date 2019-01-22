@@ -1,2 +1,14 @@
-*.elf
+*.aux
 *.bin
+*.dvi
+*.eepic
+*.elf
+*.eps
+*.log
+*.o
+*.out
+*.pdf
+*.ptc
+*.sw?
+*.toc
+.fuse_hidden*

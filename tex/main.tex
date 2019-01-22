@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{verbatim}
+\usepackage{graphicx, caption}
+\usepackage{array}
+\usepackage{csquotes}
+\usepackage{xspace}
+\usepackage{eurosym}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{titletoc}
+\usepackage{pdfpages}
+\usepackage{listings}
+\usepackage{courier}
+
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true}
+\lstset{framextopmargin=50pt,morekeywords={commit,Author,Date}}
+
+\pagestyle{fancy}
+\fancyfoot[L]{
+      \includegraphics[scale=0.015]{graphics/logo-epita-hd.png}
+}
+
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+
+\setcounter{secnumdepth}{4}
+
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\newcolumntype{L}{>{\centering\arraybackslash}m{10cm}}
+
+\newcommand\hmm[1]{\ifnum\ifhmode\spacefactor\else2000\fi>1000
+\uppercase{#1}\else#1\fi}
+
+\newcommand{\image}[3]{
+  \noindent
+  \begin{minipage}[c]{\textwidth}
+    \centering
+    \makebox[\textwidth][c]{
+      \includegraphics[scale=#2]{graphics/#1}
+    }
+    \captionof{figure}{#3}
+  \end{minipage}
+
+}
+
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=black,
+  }
+
+\urlstyle{same}
+
+\setlength{\parskip}{1em}
+
+\usepackage{tikz}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\input{tex/page_de_garde}
+
+\large
+\renewcommand*\contentsname{\Large Sommaire}
+
+\startcontents
+\printcontents{ }{1}{}
+
+\newpage
+
+\pagenumbering{arabic}
+\setlength\emergencystretch{.5\textwidth}
+
+\input{tex/introduction}
+\input{tex/travail}
+\input{tex/conclusion}
+\input{tex/glossaire}
+\input{tex/docs}
+\input{tex/annexes}
+
+
+\end{document}

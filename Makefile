@@ -1,22 +1,29 @@
-TARGET=arm-elf
-GPRBUILD=gprbuild
-GPRFLAGS=--target=$(TARGET)
-BUILDDIR=Ada_Drivers_Library/examples/shared/hello_world_blinky/obj/stm32f429disco
-CROSS=arm-none-eabi
-PATH:=$(HOME)/opt/GNAT/2018-arm-elf/bin:$(PATH)
-
-OBJCOPY=$(CROSS)-objcopy
-
+TARGET = arm-elf
+GPRBUILD = gprbuild
+GPRFLAGS = --target=$(TARGET)
+PATH := $(HOME)/opt/GNAT/2018-arm-elf/bin:$(PATH)
+CROSS = arm-none-eabi
+OBJCOPY = $(CROSS)-objcopy
 STFLASH ?= st-flash
 
+GPR = Ada_Drivers_Library/examples/STM32F429_Discovery/blinky_f429disco.gpr
+BUILDDIR = Ada_Drivers_Library/examples/shared/hello_world_blinky/obj/stm32f429disco
 PROJ	= blinky
 ELF	= $(PROJ).elf
 HEX	= $(PROJ).hex
 BIN	= $(PROJ).bin
 
-GPR = Ada_Drivers_Library/examples/STM32F429_Discovery/blinky_f429disco.gpr
+TEX = pdflatex -shell-escape -interaction=nonstopmode -file-line-error
+GS = gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer -dNOPAUSE -dBATCH -sOutputFile=
+VIEWER = zathura
 
-all:: $(BIN)
+TEX_PATH = tex
+TEX_FILES = conclusion.tex glossaire.tex travail.tex docs.tex introduction.tex page_de_garde.tex annexes.tex
+PDF = main.pdf
+
+all:: $(BIN) $(PDF)
+
+bin:: $(BIN)
 
 $(HEX): $(ELF)
 	$(OBJCOPY) -O ihex $(PROJ).elf $(PROJ).hex
@@ -31,7 +38,20 @@ $(ELF):
 flash:: $(BIN)
 	$(STFLASH) write $(BIN) 0x8000000
 
-clean::
-	$(RM) $(ELF) $(HEX) $(OBJ) $(BIN)
+report: $(PDF)
 
-.PHONY: all clean flash
+$(PDF): $(foreach file,$(TEX_FILES),$(TEX_PATH)/$(file))
+
+%.pdf: $(TEX_PATH)/%.tex
+	rubber -d $<
+
+report-compress: $(PDF)
+	$(GS)"compressed-$(PDF)" $(PDF)
+
+view: $(PDF)
+	$(VIEWER) $(PDF)
+
+clean::
+	$(RM) $(ELF) $(HEX) $(OBJ) $(BIN) *.log *.aux *.pdf *.toc *.out *.dvi *.ptc *.o
+
+.PHONY: all clean flash view report-compress report bin
