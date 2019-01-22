@@ -1,0 +1,15 @@
+with "drivers/boards/stm32f429_discovery/stm32f429_discovery_full.gpr";
+
+project Square_Destroyer extends "drivers/examples/shared/common/common.gpr" is
+
+  for Runtime ("Ada") use STM32F429_Discovery_Full'Runtime("Ada");
+  for Target use "arm-elf";
+  for Source_Dirs use ("src");
+  for Main use ("square_destroyer.adb");
+  for Languages use ("Ada");
+  for Object_Dir use "obj/stm32f429/square_destroyer";
+  for Create_Missing_Dirs use "True";
+
+  package Compiler renames STM32F429_Discovery_Full.Compiler;
+
+end Square_Destroyer;

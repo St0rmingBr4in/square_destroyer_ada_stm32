@@ -1,7 +1,10 @@
-TARGET=arm-elf
+PROJ	= square_destroyer
+
+BUILD=Debug # Possible values are Debug and Production
+
 GPRBUILD=gprbuild
-GPRFLAGS=--target=$(TARGET)
-BUILDDIR=Ada_Drivers_Library/examples/shared/hello_world_blinky/obj/stm32f429disco
+GPRCLEAN=gprclean
+BUILDDIR=obj/stm32f429/$(PROJ)
 CROSS=arm-none-eabi
 PATH:=$(HOME)/opt/GNAT/2018-arm-elf/bin:$(PATH)
 
@@ -9,12 +12,11 @@ OBJCOPY=$(CROSS)-objcopy
 
 STFLASH ?= st-flash
 
-PROJ	= blinky
 ELF	= $(PROJ).elf
 HEX	= $(PROJ).hex
 BIN	= $(PROJ).bin
 
-GPR = Ada_Drivers_Library/examples/STM32F429_Discovery/blinky_f429disco.gpr
+GPR = square_destroyer.gpr
 
 all:: $(BIN)
 
@@ -28,7 +30,7 @@ $(BIN): $(ELF)
 	$(OBJCOPY) -O binary $(PROJ).elf $(PROJ).bin
 
 $(ELF):
-	$(GPRBUILD) $(GPRFLAGS) $(GPR)
+	$(GPRBUILD) -XBUILD=$(BUILD) $(GPR)
 	cp $(BUILDDIR)/$(PROJ) $(ELF)
 
 flash:: $(BIN)
@@ -36,6 +38,7 @@ flash:: $(BIN)
 
 clean::
 	$(MAKE) -C report clean
+	$(GPRCLEAN)
 	$(RM) $(ELF) $(HEX) $(OBJ) $(BIN)
 
 .PHONY: all clean flash
