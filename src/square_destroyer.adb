@@ -40,13 +40,30 @@ with HAL.Touch_Panel;       use HAL.Touch_Panel;
 with STM32.User_Button;     use STM32;
 with BMP_Fonts;
 with LCD_Std_Out;
+with Ada.Numerics.discrete_Random;
+
+package body Square_Destroyer is
+
+procedure Init_Grid(g : out Grid) is
+    subtype Rand_Range is Square;
+    package Rand_Int is new Ada.Numerics.Discrete_Random(Rand_Range);
+    gen : Rand_Int.Generator;
+begin
+    for i in g'Range(1) loop
+        for j in g'Range(2) loop
+            g(i, j) := Square(Rand_Int.Random(gen));
+        end loop;
+    end loop;
+end Init_Grid;
+
 
 procedure Square_Destroyer
 is
    BG : Bitmap_Color := (Alpha => 255, others => 0);
    Ball_Pos   : Point := (20, 280);
+   g : Grid;
 begin
-
+    Init_Grid(g);
    --  Initialize LCD
    Display.Initialize;
    Display.Initialize_Layer (1, ARGB_8888);
@@ -94,3 +111,5 @@ begin
 
    end loop;
 end Square_Destroyer;
+
+end;
