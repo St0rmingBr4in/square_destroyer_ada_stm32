@@ -3,8 +3,9 @@ GS = gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/printer -dNOPA
 VIEWER = zathura
 
 TEX_PATH = tex
-TEX_FILES = conclusion.tex glossaire.tex travail.tex docs.tex introduction.tex page_de_garde.tex annexes.tex
-PDF = main.pdf
+TEX_FILES = conclusion.tex glossary.tex work.tex docs.tex introduction.tex \
+						cover.tex appendices.tex specs.tex
+PDF = report.pdf
 
 all:: report
 
