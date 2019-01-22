@@ -12,3 +12,4 @@
 *.sw?
 *.toc
 .fuse_hidden*
+obj/
