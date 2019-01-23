@@ -40,18 +40,16 @@ with HAL.Bitmap;            use HAL.Bitmap;
 with STM32.User_Button;     use STM32;
 with BMP_Fonts;
 with LCD_Std_Out;
-with Ada.Numerics.discrete_Random;
+with STM32.RNG.Interrupts;
+with HAL; use HAL;
 
 package body Square_Destroyer is
 
 procedure Init_Grid(g : out Grid) is
-    package Rand_Int is new Ada.Numerics.Discrete_Random(Square);
-    gen : Rand_Int.Generator;
 begin
-    Rand_Int.Reset(gen);
     for i in g'Range(1) loop
         for j in g'Range(2) loop
-            g(i, j) := Square(Rand_Int.Random(gen));
+            g(i, j) := Square'Val(RNG.Interrupts.Random mod UInt32 (Square'Size));
         end loop;
     end loop;
 end Init_Grid;
@@ -64,18 +62,18 @@ is
                              HAL.Bitmap.Yellow, HAL.Bitmap.Magenta,
                              HAL.Bitmap.Cyan);
    BG : constant Bitmap_Color := (Alpha => 255, others => 0);
-
    Rect_Pos   : Point := (0, 0);
    r : Rect := (Rect_Pos, 39, 39);
    g : Grid;
 begin
-    Init_Grid(g);
+   STM32.RNG.Interrupts.Initialize_RNG;
+   Init_Grid(g);
    --  Initialize LCD
    Display.Initialize;
    Display.Initialize_Layer (1, ARGB_8888);
 
    --  Initialize touch panel
-   Touch_Panel.Initialize;
+   --HAL.Touch_Panel.Initialize;
 
    --  Initialize button
    User_Button.Initialize;
