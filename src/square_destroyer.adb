@@ -47,6 +47,8 @@ package body Square_Destroyer is
 
 procedure Init_Grid(g : out Grid) is
 begin
+    RNG.Interrupts.Initialize_RNG;
+
     for i in g'Range(1) loop
         for j in g'Range(2) loop
             g(i, j) := Square'Val(RNG.Interrupts.Random mod
@@ -59,16 +61,18 @@ end Init_Grid;
 procedure Square_Destroyer
 is
    type ColorMap is array(Square) of HAL.Bitmap.Bitmap_Color;
+
    m : constant ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green, HAL.Bitmap.Red,
                              HAL.Bitmap.Yellow, HAL.Bitmap.Magenta,
                              HAL.Bitmap.Cyan);
    BG : constant Bitmap_Color := (Alpha => 255, others => 0);
-   Rect_Pos   : Point := (0, 0);
-   r : Rect := (Rect_Pos, 39, 39);
-   g : Grid;
+
+   Rect_Pos : Point := (0, 0);
+   r        : Rect  := (Rect_Pos, 39, 39);
+   g        : Grid;
 begin
-   STM32.RNG.Interrupts.Initialize_RNG;
    Init_Grid(g);
+
    --  Initialize LCD
    Display.Initialize;
    Display.Initialize_Layer (1, ARGB_8888);
