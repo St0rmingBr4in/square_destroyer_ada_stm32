@@ -49,7 +49,8 @@ procedure Init_Grid(g : out Grid) is
 begin
     for i in g'Range(1) loop
         for j in g'Range(2) loop
-            g(i, j) := Square'Val(RNG.Interrupts.Random mod UInt32 (Square'Size));
+            g(i, j) := Square'Val(RNG.Interrupts.Random mod
+                                  UInt32 (Square'Pos(Square'Last) + 1));
         end loop;
     end loop;
 end Init_Grid;
