@@ -33,7 +33,12 @@ private
         Post       => (Is_In_Grid'Result = (P.X in 1..GRID_WIDTH and then
                                             P.Y in 1..GRID_HEIGHT));
 
-    procedure Init_Grid(G : out Grid);
+    procedure Init_Grid(G : out Grid) with
+        Global => null,
+        Post   => (for all I in G'Range(1) =>
+                       (for all J in G'Range(2) =>
+                            G(I, J)'Valid));
+
     procedure Draw_Grid(G : Grid);
 
     procedure Swap(G : in out Grid; A : Point; B : Point) with
