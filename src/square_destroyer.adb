@@ -30,8 +30,8 @@ package body Square_Destroyer is
         type ColorMap is array(Square) of HAL.Bitmap.Bitmap_Color;
 
         m : constant ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green,
-                                  HAL.Bitmap.Red, HAL.Bitmap.Yellow,
-                                  HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
+        HAL.Bitmap.Red, HAL.Bitmap.Yellow,
+        HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
         Rect_Pos : Point := (0, 0);
         r        : Rect  := (Rect_Pos, 39, 39);
     begin
@@ -65,6 +65,29 @@ package body Square_Destroyer is
         return ((abs x_diff) + (abs y_diff)) = 1;
     end;
 
+    function Count_Dir(g : Grid; x : Integer; step_x : Integer; y : Integer;
+        step_y : Integer; s : Square) return Integer is
+        count : Integer := 0;
+        tmp_X : Integer := x;
+        tmp_Y : Integer := y;
+    begin
+        while tmp_x >= g'First(1) and then tmp_x <= g'Last(1) and then tmp_y >= g'First(2)
+            and then tmp_y <= g'Last(2) and then g(tmp_x, tmp_y) = s loop
+            count := count + 1;
+            tmp_x := tmp_x + step_x;
+            tmp_y := tmp_y + step_y;
+        end loop;
+        return count;
+    end;
+
+
+    function Is_Move_Legal(g : Grid; p : Point) return Boolean is
+        s : constant Square := g(p.X, p.Y);
+    begin
+        return ((Count_Dir(g, p.X - 1, -1, p.Y, 0, s) + Count_Dir(g, p.X + 1, 1,
+        p.Y, 0, s)) >= 2) or else ((Count_Dir(g, p.X, 0, p.Y - 1, -1, s) +
+        Count_Dir(g, p.X, 0, p.Y + 1, 1, s)) >= 2);
+    end;
 
     procedure Square_Destroyer
     is
@@ -107,19 +130,22 @@ package body Square_Destroyer is
                         Just_Moved := False;
                     when 1 =>
                         if not Just_Moved then
-                        Last_Square := Cur_Square;
-                        Cur_Square := ((State (State'First).X / 40) +
-                        g'First(1), ((State (State'First).Y)/ 40) + g'FIrst(2));
-                end if;
+                            Last_Square := Cur_Square;
+                            Cur_Square := ((State (State'First).X / 40) +
+                            g'First(1), ((State (State'First).Y)/ 40) + g'FIrst(2));
+                        end if;
                     when others => null;
                 end case;
             end;
-            -- if Cur_Square.X /= Last_Square.X or else Cur_Square.Y = Last
             if Are_Adjacent(Cur_Square, Last_Square) then
                 Swap(g, Cur_Square, Last_Square);
-                Last_Square := (10,10);
-                Cur_Square := (10,10);
-                Just_Moved := True;
+                if Is_move_Legal(g, Cur_Square) or else Is_Move_Legal(g, Last_Square) then
+                    Last_Square := (10,10);
+                    Cur_Square := (10,10);
+                    Just_Moved := True;
+                else
+                    Swap(g, Cur_Square, Last_Square);
+                end if;
             end if;
             Draw_Grid(g);
 
