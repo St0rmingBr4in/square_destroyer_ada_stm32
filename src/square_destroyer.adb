@@ -3,14 +3,14 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 --  an exception is propagated. We need it in the executable, therefore it
 --  must be somewhere in the closure of the context clauses.
 
-with STM32.Board;           use STM32.Board;
+with HAL; use HAL;
+with STM32.Board; use STM32.Board;
 with HAL.Bitmap;            use HAL.Bitmap;
---with HAL.Touch_Panel;       use HAL.Touch_Panel;
+with HAL.Touch_Panel;
 with STM32.User_Button;     use STM32;
 with BMP_Fonts;
 with LCD_Std_Out;
 with STM32.RNG.Interrupts;
-with HAL; use HAL;
 
 package body Square_Destroyer is
 
@@ -45,11 +45,30 @@ package body Square_Destroyer is
         end loop;
     end;
 
+    procedure Swap(g : in out Grid; a : Point; b : Point) is
+        c : Square;
+    begin
+        c := g(a.X, a.Y);
+        g(a.X, a.Y) := g(b.X, b.Y);
+        g(b.X, b.Y) := c;
+    end;
+
+    function Are_Adjacent(a : Point; b : Point) return Boolean is
+        x_diff : Integer;
+        y_diff : Integer;
+    begin
+        x_diff := a.X - b.X;
+        y_diff := a.Y - b.Y;
+        return ((abs x_diff) + (abs y_diff)) = 1;
+    end;
+
 
     procedure Square_Destroyer
     is
         BG : constant Bitmap_Color := (Alpha => 255, others => 0);
         g        : Grid;
+        Last_Square : Point := (0,0);
+        Cur_Square : Point := (0,0);
     begin
         Init_Grid(g);
 
@@ -58,7 +77,7 @@ package body Square_Destroyer is
         Display.Initialize_Layer (1, ARGB_8888);
 
         --  Initialize touch panel
-        --HAL.Touch_Panel.Initialize;
+        STM32.Board.Touch_Panel.Initialize;
 
         --  Initialize button
         User_Button.Initialize;
@@ -74,20 +93,28 @@ package body Square_Destroyer is
         Display.Update_Layer (1, Copy_Back => True);
 
         loop
-            --  declare
-            --     State : constant TP_State := Touch_Panel.Get_All_Touch_Points;
-            --  begin
-            --     case State'Length is
-            --        when 1 =>
-            --           Ball_Pos := (State (State'First).X, State (State'First).Y);
-            --        when others => null;
-            --     end case;
-            --  end;
-
+            declare
+                State : constant HAL.Touch_Panel.TP_State :=
+                    STM32.Board.Touch_Panel.Get_All_Touch_Points;
+            begin
+                case State'Length is
+                    when 1 =>
+                        Last_Square := Cur_Square;
+                        Cur_Square := ((State (State'First).X / 40) +
+                        g'First(1), ((State (State'First).Y)/ 40) + g'FIrst(2));
+                    when others => null;
+                end case;
+            end;
+            -- if Cur_Square.X /= Last_Square.X or else Cur_Square.Y = Last
+            if Are_Adjacent(Cur_Square, Last_Square) then
+                Swap(g, Cur_Square, Last_Square);
+                Last_Square := (0,0);
+                Cur_Square := (0,0);
+            end if;
             Draw_Grid(g);
+
             --  Update screen
             Display.Update_Layer (1, Copy_Back => True);
-
         end loop;
     end Square_Destroyer;
 
