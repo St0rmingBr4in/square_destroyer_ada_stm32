@@ -45,8 +45,14 @@ private
     procedure Init_Board with
         Global => null;
 
-    procedure Draw_Grid(G : Grid) with
-        Global => null;
+    procedure Get_Input(G           : Grid;
+                        Last_Square : out Optional_Point;
+                        Cur_Square  : in out Optional_Point;
+                        Just_Moved  : in out Boolean) with
+        Global     => null,
+        Depends    => (Last_Square => (Just_Moved, Cur_Square),
+                       Cur_Square  => (Just_Moved, G),
+                       Just_Moved  => null);
 
     procedure Swap(G : in out Grid; A : Point; B : Point) with
         SPARK_MODE => On,
@@ -76,6 +82,9 @@ private
         Global => null;
 
     function Is_Move_Legal(G : Grid; P : Point) return Boolean with
+        Global => null;
+
+    procedure Draw_Grid(G : Grid) with
         Global => null;
 
 end Square_Destroyer;

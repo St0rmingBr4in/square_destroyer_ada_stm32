@@ -54,18 +54,29 @@ package body Square_Destroyer is
         Display.Update_Layer (1, Copy_Back => True);
     end Init_Board;
 
-    procedure Draw_Grid(G : Grid) is
-        R : Rect  := ((0, 0), COLORED_SQUARE_SIZE, COLORED_SQUARE_SIZE);
+    procedure Get_Input(G           : Grid;
+                        Last_Square : out Optional_Point;
+                        Cur_Square  : in out Optional_Point;
+                        Just_Moved  : in out Boolean) is
+        State : constant HAL.Touch_Panel.TP_State :=
+                    STM32.Board.Touch_Panel.Get_All_Touch_Points;
     begin
-        for I in G'Range(1) loop
-            for J in G'Range(2) loop
-                Display.Hidden_Buffer (1).Set_Source (CM(G(I, J)));
-                R.Position := ((I - G'First(1)) * SQUARE_SIZE,
-                               (J - G'First(2)) * SQUARE_SIZE);
-                Display.Hidden_Buffer (1).Fill_Rect (R);
-            end loop;
-        end loop;
-    end;
+        case State'Length is
+            when 0 =>
+                Just_Moved := False;
+            when 1 =>
+                if not Just_Moved then
+                    Last_Square := Cur_Square;
+                    Cur_Square :=
+                      (Valid => True,
+                       P => ((State (State'First).X / SQUARE_SIZE)
+                              + G'First(1),
+                            ((State (State'First).Y)/ SQUARE_SIZE)
+                              + G'FIrst(2)));
+                end if;
+            when others => null;
+        end case;
+    end Get_Input;
 
     procedure Swap(G : in out Grid; A : Point; B : Point) is
         C : constant Square := G(A.X, A.Y);
@@ -115,6 +126,19 @@ package body Square_Destroyer is
                  Count_Dir(G, P.X, 0, P.Y + 1, 1, S)) >= 2);
     end;
 
+    procedure Draw_Grid(G : Grid) is
+        R : Rect  := ((0, 0), COLORED_SQUARE_SIZE, COLORED_SQUARE_SIZE);
+    begin
+        for I in G'Range(1) loop
+            for J in G'Range(2) loop
+                Display.Hidden_Buffer (1).Set_Source (CM(G(I, J)));
+                R.Position := ((I - G'First(1)) * SQUARE_SIZE,
+                               (J - G'First(2)) * SQUARE_SIZE);
+                Display.Hidden_Buffer (1).Fill_Rect (R);
+            end loop;
+        end loop;
+    end;
+
     procedure Square_Destroyer
     is
         G           : Grid;
@@ -126,26 +150,7 @@ package body Square_Destroyer is
         Init_Grid(G);
 
         loop
-            declare
-                State : constant HAL.Touch_Panel.TP_State :=
-                    STM32.Board.Touch_Panel.Get_All_Touch_Points;
-            begin
-                case State'Length is
-                    when 0 =>
-                        Just_Moved := False;
-                    when 1 =>
-                        if not Just_Moved then
-                            Last_Square := Cur_Square;
-                            Cur_Square :=
-                              (Valid => True,
-                               P => ((State (State'First).X / SQUARE_SIZE)
-                                      + G'First(1),
-                                    ((State (State'First).Y)/ SQUARE_SIZE)
-                                      + G'FIrst(2)));
-                        end if;
-                    when others => null;
-                end case;
-            end;
+            Get_Input(G, Last_Square, Cur_Square, Just_Moved);
             if Are_Adjacent(Cur_Square, Last_Square) then
                 Swap(G, Cur_Square.P, Last_Square.P);
                 if Is_move_Legal(G, Cur_Square.P)
