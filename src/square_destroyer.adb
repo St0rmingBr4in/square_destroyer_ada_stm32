@@ -13,6 +13,11 @@ with STM32.RNG.Interrupts;
 
 package body Square_Destroyer is
 
+    function Is_In_Grid(P : Point) return Boolean is
+    begin
+        return P.X in 1..GRID_WIDTH and then P.Y in 1..GRID_HEIGHT;
+    end Is_In_Grid;
+
     procedure Init_Grid(G : out Grid) is
     begin
         RNG.Interrupts.Initialize_RNG;
