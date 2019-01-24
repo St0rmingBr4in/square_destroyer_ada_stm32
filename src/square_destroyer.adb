@@ -3,9 +3,8 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 --  an exception is propagated. We need it in the executable, therefore it
 --  must be somewhere in the closure of the context clauses.
 
-with HAL; use HAL;
-with STM32.Board; use STM32.Board;
-with HAL.Bitmap;            use HAL.Bitmap;
+with HAL;                   use HAL;
+with STM32.Board;           use STM32.Board;
 with HAL.Touch_Panel;
 with STM32.User_Button;     use STM32;
 with BMP_Fonts;
@@ -14,91 +13,96 @@ with STM32.RNG.Interrupts;
 
 package body Square_Destroyer is
 
-    procedure Init_Grid(g : out Grid) is
+    procedure Init_Grid(G : out Grid) is
     begin
         RNG.Interrupts.Initialize_RNG;
 
-        for i in g'Range(1) loop
-            for j in g'Range(2) loop
-                g(i, j) := Square'Val(RNG.Interrupts.Random mod
-                UInt32 (Square'Pos(Square'Last) + 1));
+        for I in G'Range(1) loop
+            for J in G'Range(2) loop
+                G(I, J) := Square'Val(RNG.Interrupts.Random mod
+                                      UInt32(Square'Pos(Square'Last) + 1));
             end loop;
         end loop;
     end Init_Grid;
 
-    procedure Draw_Grid(g : Grid) is
+    procedure Draw_Grid(G : Grid) is
         type ColorMap is array(Square) of HAL.Bitmap.Bitmap_Color;
 
-        m : constant ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green,
-        HAL.Bitmap.Red, HAL.Bitmap.Yellow,
-        HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
+        M : constant ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green,
+                                  HAL.Bitmap.Red, HAL.Bitmap.Yellow,
+                                  HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
+
         Rect_Pos : Point := (0, 0);
-        r        : Rect  := (Rect_Pos, 39, 39);
+        R        : Rect  := (Rect_Pos, 39, 39);
     begin
-        for i in g'Range(1) loop
-            for j in g'Range(2) loop
-                Display.Hidden_Buffer (1).Set_Source (m(g(i,j)));
-                Rect_Pos := ((i - g'First(1)) * 40, (j - g'First(2)) * 40);
-                r := (Rect_Pos, 39, 39);
-                Display.Hidden_Buffer (1).Fill_Rect (r);
+        for I in G'Range(1) loop
+            for J in G'Range(2) loop
+                Display.Hidden_Buffer (1).Set_Source (M(G(I, J)));
+                Rect_Pos := ((I - G'First(1)) * 40, (J - G'First(2)) * 40);
+                R := (Rect_Pos, 39, 39);
+                Display.Hidden_Buffer (1).Fill_Rect (R);
             end loop;
         end loop;
     end;
 
-    procedure Swap(g : in out Grid; a : Point; b : Point) is
-        c : Square;
+    procedure Swap(G : in out Grid; A : Point; B : Point) is
+        C : Square;
     begin
-        c := g(a.X, a.Y);
-        g(a.X, a.Y) := g(b.X, b.Y);
-        g(b.X, b.Y) := c;
+        C := G(A.X, A.Y);
+        G(A.X, A.Y) := G(B.X, B.Y);
+        G(B.X, B.Y) := C;
     end;
 
-    function Are_Adjacent(a : Point; b : Point) return Boolean is
-        x_diff : Integer;
-        y_diff : Integer;
+    function Are_Adjacent(A : Optional_Point; B : Optional_Point)
+    return Boolean is
+        X_Diff : Integer;
+        Y_Diff : Integer;
     begin
-        if a.X = 10 or else b.X = 10 then
-            return false;
+        if not A.Valid or else not B.Valid then
+            return False;
         end if;
-        x_diff := a.X - b.X;
-        y_diff := a.Y - b.Y;
-        return ((abs x_diff) + (abs y_diff)) = 1;
+
+        X_Diff := A.P.X - B.P.X;
+        Y_Diff := A.P.Y - B.P.Y;
+        return ((abs X_Diff) + (abs Y_Diff)) = 1;
     end;
 
-    function Count_Dir(g : Grid; x : Integer; step_x : Integer; y : Integer;
-        step_y : Integer; s : Square) return Integer is
-        count : Integer := 0;
-        tmp_X : Integer := x;
-        tmp_Y : Integer := y;
+    function Count_Dir(G : Grid; X : Integer; Step_X : Integer; Y : Integer;
+        Step_Y : Integer; S : Square) return Integer is
+        Count : Integer := 0;
+        Tmp_X : Integer := X;
+        Tmp_Y : Integer := Y;
     begin
-        while tmp_x >= g'First(1) and then tmp_x <= g'Last(1) and then tmp_y >= g'First(2)
-            and then tmp_y <= g'Last(2) and then g(tmp_x, tmp_y) = s loop
-            count := count + 1;
-            tmp_x := tmp_x + step_x;
-            tmp_y := tmp_y + step_y;
+        while Tmp_X >= G'First(1) and then Tmp_X <= G'Last(1)
+              and then Tmp_Y >= G'First(2) and then Tmp_Y <= G'Last(2)
+              and then G(Tmp_X, Tmp_Y) = S loop
+            Count := Count + 1;
+            Tmp_X := Tmp_X + Step_X;
+            Tmp_Y := Tmp_Y + Step_Y;
         end loop;
-        return count;
+
+        return Count;
     end;
 
 
-    function Is_Move_Legal(g : Grid; p : Point) return Boolean is
-        s : constant Square := g(p.X, p.Y);
+    function Is_Move_Legal(G : Grid; P : Point) return Boolean is
+        S : constant Square := G(P.X, P.Y);
     begin
-        return ((Count_Dir(g, p.X - 1, -1, p.Y, 0, s) + Count_Dir(g, p.X + 1, 1,
-        p.Y, 0, s)) >= 2) or else ((Count_Dir(g, p.X, 0, p.Y - 1, -1, s) +
-        Count_Dir(g, p.X, 0, p.Y + 1, 1, s)) >= 2);
+        return ((Count_Dir(G, P.X - 1, -1, P.Y, 0, S) + Count_Dir(G, P.X + 1, 1,
+            P.Y, 0, S)) >= 2) or else ((Count_Dir(G, P.X, 0, P.Y - 1, -1, S) +
+            Count_Dir(G, P.X, 0, P.Y + 1, 1, S)) >= 2);
     end;
 
     procedure Square_Destroyer
     is
         BG : constant Bitmap_Color := (Alpha => 255, others => 0);
-        g        : Grid;
-        -- 10 is a dummy value outside the grid to specify the default state
-        Last_Square : Point := (10,10);
-        Cur_Square : Point := (10,10);
-        Just_Moved : Boolean := False;
+
+        G           : Grid;
+        Last_Square : Optional_Point := (Valid => False, P => <>);
+        Cur_Square  : Optional_Point := (Valid => False, P => <>);
+        Just_Moved  : Boolean        := False;
     begin
-        Init_Grid(g);
+        Init_Grid(G);
 
         --  Initialize LCD
         Display.Initialize;
@@ -131,23 +135,27 @@ package body Square_Destroyer is
                     when 1 =>
                         if not Just_Moved then
                             Last_Square := Cur_Square;
-                            Cur_Square := ((State (State'First).X / 40) +
-                            g'First(1), ((State (State'First).Y)/ 40) + g'FIrst(2));
+                            Cur_Square :=
+                              (Valid => True,
+                               P => ((State (State'First).X / 40) + G'First(1),
+                                    ((State (State'First).Y)/ 40) + G'FIrst(2)));
                         end if;
                     when others => null;
                 end case;
             end;
             if Are_Adjacent(Cur_Square, Last_Square) then
-                Swap(g, Cur_Square, Last_Square);
-                if Is_move_Legal(g, Cur_Square) or else Is_Move_Legal(g, Last_Square) then
-                    Last_Square := (10,10);
-                    Cur_Square := (10,10);
-                    Just_Moved := True;
+                Swap(G, Cur_Square.P, Last_Square.P);
+                if Is_move_Legal(G, Cur_Square.P)
+                    or else Is_Move_Legal(G, Last_Square.P) then
+                    Last_Square.Valid := False;
+                    Cur_Square.Valid  := False;
+                    Just_Moved        := True;
                 else
-                    Swap(g, Cur_Square, Last_Square);
+                    Swap(G, Cur_Square.P, Last_Square.P);
                 end if;
             end if;
-            Draw_Grid(g);
+
+            Draw_Grid(G);
 
             --  Update screen
             Display.Update_Layer (1, Copy_Back => True);
