@@ -57,6 +57,9 @@ package body Square_Destroyer is
         x_diff : Integer;
         y_diff : Integer;
     begin
+        if a.X = 10 or else b.X = 10 then
+            return false;
+        end if;
         x_diff := a.X - b.X;
         y_diff := a.Y - b.Y;
         return ((abs x_diff) + (abs y_diff)) = 1;
@@ -67,8 +70,10 @@ package body Square_Destroyer is
     is
         BG : constant Bitmap_Color := (Alpha => 255, others => 0);
         g        : Grid;
-        Last_Square : Point := (0,0);
-        Cur_Square : Point := (0,0);
+        -- 10 is a dummy value outside the grid to specify the default state
+        Last_Square : Point := (10,10);
+        Cur_Square : Point := (10,10);
+        Just_Moved : Boolean := False;
     begin
         Init_Grid(g);
 
@@ -98,18 +103,23 @@ package body Square_Destroyer is
                     STM32.Board.Touch_Panel.Get_All_Touch_Points;
             begin
                 case State'Length is
+                    when 0 =>
+                        Just_Moved := False;
                     when 1 =>
+                        if not Just_Moved then
                         Last_Square := Cur_Square;
                         Cur_Square := ((State (State'First).X / 40) +
                         g'First(1), ((State (State'First).Y)/ 40) + g'FIrst(2));
+                end if;
                     when others => null;
                 end case;
             end;
             -- if Cur_Square.X /= Last_Square.X or else Cur_Square.Y = Last
             if Are_Adjacent(Cur_Square, Last_Square) then
                 Swap(g, Cur_Square, Last_Square);
-                Last_Square := (0,0);
-                Cur_Square := (0,0);
+                Last_Square := (10,10);
+                Cur_Square := (10,10);
+                Just_Moved := True;
             end if;
             Draw_Grid(g);
 
