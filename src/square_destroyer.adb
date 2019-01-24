@@ -65,7 +65,8 @@ package body Square_Destroyer is
     end;
 
     function Count_Dir(G : Grid; X : Integer; Step_X : Integer; Y : Integer;
-        Step_Y : Integer; S : Square) return Integer is
+                       Step_Y : Integer; S : Square)
+    return Integer is
         Count : Integer := 0;
         Tmp_X : Integer := X;
         Tmp_Y : Integer := Y;
@@ -81,13 +82,13 @@ package body Square_Destroyer is
         return Count;
     end;
 
-
     function Is_Move_Legal(G : Grid; P : Point) return Boolean is
         S : constant Square := G(P.X, P.Y);
     begin
-        return ((Count_Dir(G, P.X - 1, -1, P.Y, 0, S) + Count_Dir(G, P.X + 1, 1,
-            P.Y, 0, S)) >= 2) or else ((Count_Dir(G, P.X, 0, P.Y - 1, -1, S) +
-            Count_Dir(G, P.X, 0, P.Y + 1, 1, S)) >= 2);
+        return ((Count_Dir(G, P.X - 1, -1, P.Y, 0, S) +
+                 Count_Dir(G, P.X + 1, 1, P.Y, 0, S)) >= 2) or else
+               ((Count_Dir(G, P.X, 0, P.Y - 1, -1, S) +
+                 Count_Dir(G, P.X, 0, P.Y + 1, 1, S)) >= 2);
     end;
 
     procedure Square_Destroyer
