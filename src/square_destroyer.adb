@@ -26,20 +26,13 @@ package body Square_Destroyer is
     end Init_Grid;
 
     procedure Draw_Grid(G : Grid) is
-        type ColorMap is array(Square) of HAL.Bitmap.Bitmap_Color;
-
-        M : constant ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green,
-                                  HAL.Bitmap.Red, HAL.Bitmap.Yellow,
-                                  HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
-
-        Rect_Pos : Point := (0, 0);
-        R        : Rect  := (Rect_Pos, 39, 39);
+        R : Rect  := ((0, 0), COLORED_SQUARE_SIZE, COLORED_SQUARE_SIZE);
     begin
         for I in G'Range(1) loop
             for J in G'Range(2) loop
-                Display.Hidden_Buffer (1).Set_Source (M(G(I, J)));
-                Rect_Pos := ((I - G'First(1)) * 40, (J - G'First(2)) * 40);
-                R := (Rect_Pos, 39, 39);
+                Display.Hidden_Buffer (1).Set_Source (CM(G(I, J)));
+                R.Position := ((I - G'First(1)) * SQUARE_SIZE,
+                               (J - G'First(2)) * SQUARE_SIZE);
                 Display.Hidden_Buffer (1).Fill_Rect (R);
             end loop;
         end loop;
@@ -137,8 +130,10 @@ package body Square_Destroyer is
                             Last_Square := Cur_Square;
                             Cur_Square :=
                               (Valid => True,
-                               P => ((State (State'First).X / 40) + G'First(1),
-                                    ((State (State'First).Y)/ 40) + G'FIrst(2)));
+                               P => ((State (State'First).X / SQUARE_SIZE)
+                                      + G'First(1),
+                                    ((State (State'First).Y)/ SQUARE_SIZE)
+                                      + G'FIrst(2)));
                         end if;
                     when others => null;
                 end case;
