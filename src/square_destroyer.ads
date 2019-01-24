@@ -29,7 +29,17 @@ private
 
     procedure Init_Grid(G : out Grid);
     procedure Draw_Grid(G : Grid);
-    procedure Swap(G : in out Grid; A : Point; B : Point);
+
+    procedure Swap(G : in out Grid; A : Point; B : Point) with
+        SPARK_MODE => On,
+        Global     => null,
+        Depends    => (G =>+ (A, B)),
+        Pre        => (A.X in 1..GRID_WIDTH and then A.Y in 1..GRID_HEIGHT
+                       and then
+                       B.X in 1..GRID_WIDTH and then B.Y in 1..GRID_HEIGHT),
+        Post       => (G(A.X, A.Y) = G'Old(B.X, B.Y) and then
+                       G(B.X, B.Y) = G'Old(A.X, A.Y));
+
     function Are_Adjacent(A : Optional_Point; B : Optional_Point)
       return Boolean;
     function Count_Dir(G : Grid; X : Integer; Step_X : Integer; Y : Integer;

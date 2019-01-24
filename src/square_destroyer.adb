@@ -39,9 +39,8 @@ package body Square_Destroyer is
     end;
 
     procedure Swap(G : in out Grid; A : Point; B : Point) is
-        C : Square;
+        C : constant Square := G(A.X, A.Y);
     begin
-        C := G(A.X, A.Y);
         G(A.X, A.Y) := G(B.X, B.Y);
         G(B.X, B.Y) := C;
     end;
