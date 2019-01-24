@@ -30,6 +30,30 @@ package body Square_Destroyer is
         end loop;
     end Init_Grid;
 
+    procedure Init_Board is
+        BG : constant Bitmap_Color := (Alpha => 255, others => 0);
+    begin
+        --  Initialize LCD
+        Display.Initialize;
+        Display.Initialize_Layer (1, ARGB_8888);
+
+        --  Initialize touch panel
+        STM32.Board.Touch_Panel.Initialize;
+
+        --  Initialize button
+        User_Button.Initialize;
+
+        LCD_Std_Out.Set_Font (BMP_Fonts.Font8x8);
+        LCD_Std_Out.Current_Background_Color := BG;
+
+        --  Clear LCD (set background)
+        Display.Hidden_Buffer (1).Set_Source (BG);
+        Display.Hidden_Buffer (1).Fill;
+
+        LCD_Std_Out.Clear_Screen;
+        Display.Update_Layer (1, Copy_Back => True);
+    end Init_Board;
+
     procedure Draw_Grid(G : Grid) is
         R : Rect  := ((0, 0), COLORED_SQUARE_SIZE, COLORED_SQUARE_SIZE);
     begin
@@ -93,34 +117,13 @@ package body Square_Destroyer is
 
     procedure Square_Destroyer
     is
-        BG : constant Bitmap_Color := (Alpha => 255, others => 0);
-
         G           : Grid;
         Last_Square : Optional_Point := (Valid => False, P => <>);
         Cur_Square  : Optional_Point := (Valid => False, P => <>);
         Just_Moved  : Boolean        := False;
     begin
+        Init_Board;
         Init_Grid(G);
-
-        --  Initialize LCD
-        Display.Initialize;
-        Display.Initialize_Layer (1, ARGB_8888);
-
-        --  Initialize touch panel
-        STM32.Board.Touch_Panel.Initialize;
-
-        --  Initialize button
-        User_Button.Initialize;
-
-        LCD_Std_Out.Set_Font (BMP_Fonts.Font8x8);
-        LCD_Std_Out.Current_Background_Color := BG;
-
-        --  Clear LCD (set background)
-        Display.Hidden_Buffer (1).Set_Source (BG);
-        Display.Hidden_Buffer (1).Fill;
-
-        LCD_Std_Out.Clear_Screen;
-        Display.Update_Layer (1, Copy_Back => True);
 
         loop
             declare

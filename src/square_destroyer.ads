@@ -39,6 +39,8 @@ private
                        (for all J in G'Range(2) =>
                             G(I, J)'Valid));
 
+    procedure Init_Board;
+
     procedure Draw_Grid(G : Grid);
 
     procedure Swap(G : in out Grid; A : Point; B : Point) with
