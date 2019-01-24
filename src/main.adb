@@ -1,5 +1,6 @@
 with Square_Destroyer;
 
-procedure Main is begin
+procedure Main is
+begin
     Square_Destroyer.Square_Destroyer;
-end;
+end Main;

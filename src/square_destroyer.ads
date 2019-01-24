@@ -28,6 +28,17 @@ private
             P     : Point;
         end record;
 
+---------- Helper functions for contracts --------------------------------------
+
+    function Is_Grid_Valid(G : Grid) return Boolean with
+        SPARK_MODE => On,
+        Global     => null,
+        Depends    => (Is_Grid_Valid'Result => G),
+        Post       => (Is_Grid_Valid'Result =
+                          (for all I in G'Range(1) =>
+                              (for all J in G'Range(2) =>
+                                  G(I, J)'Valid)));
+
     function Is_In_Grid(P : Point) return Boolean with
         SPARK_MODE => On,
         Global     => null,
@@ -35,12 +46,12 @@ private
         Post       => (Is_In_Grid'Result = (P.X in 1..GRID_WIDTH and then
                                             P.Y in 1..GRID_HEIGHT));
 
+--------------------------------------------------------------------------------
+
     procedure Init_Grid(G : out Grid) with
         Global  => null,
         Depends => (G => null),
-        Post    => (for all I in G'Range(1) =>
-                        (for all J in G'Range(2) =>
-                             G(I, J)'Valid));
+        Post    => (Is_Grid_Valid(G));
 
     procedure Init_Board with
         Global => null;
@@ -53,6 +64,15 @@ private
         Depends    => (Last_Square => (Just_Moved, Cur_Square),
                        Cur_Square  => (Just_Moved, G),
                        Just_Moved  => null);
+
+    procedure Update_Grid(G           : in out Grid;
+                          Last_Square : in out Optional_Point;
+                          Cur_Square  : in out Optional_Point;
+                          Just_Moved  : out Boolean) with
+        Global     => null,
+        Depends    => ((G, Last_Square, Cur_Square, Just_Moved) =>
+                            (G, Cur_Square, Last_Square)),
+        Pre        => (Is_Grid_Valid(G));
 
     procedure Swap(G : in out Grid; A : Point; B : Point) with
         SPARK_MODE => On,

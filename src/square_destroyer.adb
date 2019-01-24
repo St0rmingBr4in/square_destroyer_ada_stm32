@@ -13,6 +13,20 @@ with STM32.RNG.Interrupts;
 
 package body Square_Destroyer is
 
+---------- Helper functions for contracts --------------------------------------
+
+    function Is_Grid_Valid(G : Grid) return Boolean is
+    begin
+        for I in G'Range(1) loop
+            for J in G'Range(2) loop
+                if not G(I, J)'Valid then
+                    return False;
+                end if;
+            end loop;
+        end loop;
+        return True;
+    end Is_Grid_Valid;
+
     function Is_In_Grid(P : Point) return Boolean is
     begin
         return P.X in 1..GRID_WIDTH and then P.Y in 1..GRID_HEIGHT;
@@ -29,6 +43,8 @@ package body Square_Destroyer is
             end loop;
         end loop;
     end Init_Grid;
+
+--------------------------------------------------------------------------------
 
     procedure Init_Board is
         BG : constant Bitmap_Color := (Alpha => 255, others => 0);
@@ -77,6 +93,24 @@ package body Square_Destroyer is
             when others => null;
         end case;
     end Get_Input;
+
+    procedure Update_Grid(G           : in out Grid;
+                          Last_Square : in out Optional_Point;
+                          Cur_Square  : in out Optional_Point;
+                          Just_Moved  : out Boolean) is
+    begin
+        if Are_Adjacent(Cur_Square, Last_Square) then
+            Swap(G, Cur_Square.P, Last_Square.P);
+            if Is_Move_Legal(G, Cur_Square.P)
+                or else Is_Move_Legal(G, Last_Square.P) then
+                Last_Square.Valid := False;
+                Cur_Square.Valid  := False;
+                Just_Moved        := True;
+            else
+                Swap(G, Cur_Square.P, Last_Square.P);
+            end if;
+        end if;
+    end Update_Grid;
 
     procedure Swap(G : in out Grid; A : Point; B : Point) is
         C : constant Square := G(A.X, A.Y);
@@ -148,23 +182,10 @@ package body Square_Destroyer is
     begin
         Init_Board;
         Init_Grid(G);
-
         loop
             Get_Input(G, Last_Square, Cur_Square, Just_Moved);
-            if Are_Adjacent(Cur_Square, Last_Square) then
-                Swap(G, Cur_Square.P, Last_Square.P);
-                if Is_move_Legal(G, Cur_Square.P)
-                    or else Is_Move_Legal(G, Last_Square.P) then
-                    Last_Square.Valid := False;
-                    Cur_Square.Valid  := False;
-                    Just_Moved        := True;
-                else
-                    Swap(G, Cur_Square.P, Last_Square.P);
-                end if;
-            end if;
-
+            Update_Grid(G, Last_Square, Cur_Square, Just_Moved);
             Draw_Grid(G);
-
             --  Update screen
             Display.Update_Layer (1, Copy_Back => True);
         end loop;
