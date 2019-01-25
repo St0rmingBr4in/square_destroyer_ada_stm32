@@ -1,4 +1,5 @@
 with HAL.Bitmap; use HAL.Bitmap;
+with Ada.Containers.Vectors; use Ada.Containers;
 
 package Square_Destroyer is
 
@@ -21,6 +22,10 @@ private
     CM : constant ColorMap := (HAL.Bitmap.Blue, HAL.Bitmap.Green,
                                HAL.Bitmap.Red, HAL.Bitmap.Yellow,
                                HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
+
+    package PointVect is new Ada.Containers.Vectors
+     (Index_Type   => Natural,
+      Element_Type => Point);
 
     type Optional_Point is
         record
@@ -96,15 +101,18 @@ private
                                (((abs (A.P.X - B.P.X)) + (abs (A.P.Y - B.P.Y)))
                                  = 1));
 
-    function Count_Dir(G : Grid; X : Integer; Step_X : Integer; Y : Integer;
-                       Step_Y : Integer; S : Square)
-    return Integer with
+    procedure Get_Matching_Neighbourgs(G : Grid; X : Integer; Step_X : Integer; Y : Integer;
+        Step_Y : Integer; S : Square; MatchingSquares : in out PointVect.Vector) with
         Global => null;
 
-    function Is_Move_Legal(G : Grid; P : Point) return Boolean with
+    function Is_Move_Legal(G : Grid; P : Point; Combinations : in out
+        PointVect.Vector) return Boolean with
         Global => null;
 
     procedure Draw_Grid(G : Grid) with
         Global => null;
+
+    function Sort_By_Height(A : Point; B : Point) return Boolean;
+    package Sorter is new PointVect.Generic_Sorting ("<" => Sort_By_Height);
 
 end Square_Destroyer;
