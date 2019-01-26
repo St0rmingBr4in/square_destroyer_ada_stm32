@@ -10,6 +10,10 @@ project Square_Destroyer extends "drivers/examples/shared/common/common.gpr" is
   for Object_Dir use "obj/stm32f429/main";
   for Create_Missing_Dirs use "True";
 
-  package Compiler renames STM32F429_Discovery_Full.Compiler;
+  package Compiler is
+     for Default_Switches ("Ada") use
+        STM32F429_Discovery_Full.Compiler'Default_Switches ("Ada") &
+        ("-gnatygO");
+  end Compiler;
 
 end Square_Destroyer;
