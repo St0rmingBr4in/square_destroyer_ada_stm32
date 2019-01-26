@@ -96,10 +96,10 @@ private
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
-                          Just_Moved  : out Boolean) with
+                          Just_Moved  : in out Boolean) with
       Global     => null,
       Depends    => ((G, Last_Square, Cur_Square, Just_Moved) =>
-                        (G, Cur_Square, Last_Square)),
+                        (G, Cur_Square, Last_Square, Just_Moved)),
       Pre        => (Is_Grid_Valid (G));
 
    procedure Swap (G : in out Grid; A : Point; B : Point) with

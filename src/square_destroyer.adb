@@ -104,12 +104,11 @@ package body Square_Destroyer is
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
-                          Just_Moved  : out Boolean) is
+                          Just_Moved  : in out Boolean) is
       WorkListMove        : PointSet.Set;
       WorkListCombination : PointSet.Set;
    begin
       if not Are_Adjacent (Cur_Square, Last_Square) then
-         Just_Moved := False;
          return;
       end if;
 
@@ -123,7 +122,6 @@ package body Square_Destroyer is
          Just_Moved        := True;
       else
          Swap (G, Cur_Square.P, Last_Square.P);
-         Just_Moved := False;
          return;
       end if;
 
