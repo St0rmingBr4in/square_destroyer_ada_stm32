@@ -32,6 +32,14 @@ package body Square_Destroyer is
         return P.X in 1..GRID_WIDTH and then P.Y in 1..GRID_HEIGHT;
     end Is_In_Grid;
 
+---------- Random Wrapper ------------------------------------------------------
+
+    function Get_Random_Square return Square is
+    begin
+        return Square'Val(RNG.Interrupts.Random mod
+                          UInt32(Square'Pos(Square'Last) + 1));
+    end Get_Random_Square;
+
 ---------- Init procedures -----------------------------------------------------
 
     procedure Init_Grid(G : out Grid) is
@@ -40,8 +48,7 @@ package body Square_Destroyer is
 
         for I in G'Range(1) loop
             for J in G'Range(2) loop
-                G(I, J) := Square'Val(RNG.Interrupts.Random mod
-                                      UInt32(Square'Pos(Square'Last) + 1));
+                G(I, J) := Get_Random_Square;
             end loop;
         end loop;
     end Init_Grid;
@@ -70,6 +77,8 @@ package body Square_Destroyer is
         Display.Update_Layer (1, Copy_Back => True);
     end Init_Board;
 
+---------- Game loop procedures and functions ----------------------------------
+
     procedure Get_Input(G           : Grid;
                         Last_Square : out Optional_Point;
                         Cur_Square  : in out Optional_Point;
@@ -94,13 +103,11 @@ package body Square_Destroyer is
         end case;
     end Get_Input;
 
----------- Game loop procedures and functions ----------------------------------
-
     procedure Update_Grid(G           : in out Grid;
-        Last_Square : in out Optional_Point;
-        Cur_Square  : in out Optional_Point;
-        Just_Moved  : out Boolean) is
-        WorkListMove : PointSet.Set;
+                          Last_Square : in out Optional_Point;
+                          Cur_Square  : in out Optional_Point;
+                          Just_Moved  : out Boolean) is
+        WorkListMove        : PointSet.Set;
         WorkListCombination : PointSet.Set;
     begin
         if Are_Adjacent(Cur_Square, Last_Square) then
@@ -119,15 +126,17 @@ package body Square_Destroyer is
             while not PointSet.Is_Empty(WorkListMove) loop
                 while not PointSet.Is_Empty(WorkListMove) loop
                     declare
-                        Element : constant Point := PointSet.First_Element(WorkListMove);
+                        Element : constant Point :=
+                            PointSet.First_Element(WorkListMove);
                         Tmp_Y : Integer := Element.Y;
                     begin
                         while Tmp_Y > 0 loop
-                            exit when not PointSet.Contains(WorkListMove, (Element.X, Tmp_Y));
+                            exit when not PointSet.Contains(WorkListMove,
+                                                           (Element.X, Tmp_Y));
                             Tmp_Y := Tmp_Y - 1;
                         end loop;
                         if Tmp_Y = 0 then
-                            g(Element.X, Element.y) := Square'Val(RNG.Interrupts.Random mod UInt32(Square'Pos(Square'Last) + 1));
+                            g(Element.X, Element.y) := Get_Random_Square;
                         else
                             g(Element.X, Element.Y) := g(Element.X, Tmp_Y);
                             PointSet.Include(WorkListMove, (Element.X, Tmp_Y));
@@ -137,7 +146,9 @@ package body Square_Destroyer is
                     end;
                 end loop;
                 while not PointSet.Is_empty(WorkListCombination) loop
-                    Is_Move_Legal(G, PointSet.First_Element(WorkListCombination), WorkListMove);
+                    Is_Move_Legal(G,
+                                  PointSet.First_Element(WorkListCombination),
+                                  WorkListMove);
                     PointSet.Delete_First(WorkListCombination);
                 end loop;
             end loop;

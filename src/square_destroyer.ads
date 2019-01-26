@@ -38,8 +38,6 @@ private
                        else
                           Sort_By_Height'Result = (a.Y > b.Y));
 
-
-
     package PointSet is new Ada.Containers.Ordered_Sets
     (Element_Type => Point,
     "<" => Sort_By_Height);
@@ -67,6 +65,12 @@ private
         Depends    => (Is_In_Grid'Result => P),
         Post       => (Is_In_Grid'Result = (P.X in 1..GRID_WIDTH and then
                                             P.Y in 1..GRID_HEIGHT));
+
+---------- Random Wrapper ------------------------------------------------------
+
+    function Get_Random_Square return Square with
+        Global  => null,
+        Post    => (Get_Random_Square'Result'Valid);
 
 ---------- Init procedures -----------------------------------------------------
 
@@ -140,8 +144,8 @@ private
                         and then
                         (for all P of Matching_Squares => ((G(P.X, P.Y) = S))));
 
-    procedure Is_Move_Legal(G : Grid; P : Point; Combinations : in out
-        PointSet.Set) with
+    procedure Is_Move_Legal(G : Grid; P : Point;
+                            Combinations : in out PointSet.Set) with
         Global => null,
         Pre     => (Is_Grid_Valid(G) and then Is_In_Grid(P));
 
@@ -149,6 +153,6 @@ private
         Global => null,
         Pre    => (Is_Grid_Valid(G));
 
-    --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 end Square_Destroyer;
