@@ -132,13 +132,21 @@ private
     function Is_Move_Legal(G : Grid; P : Point;
                            Combinations : in out PointVect.Vector)
     return Boolean with
-        Global => null;
+        Global  => null,
+        Pre     => (Is_Grid_Valid(G) and then Is_In_Grid(P));
 
     procedure Draw_Grid(G : Grid) with
-        Global => null;
+        Global => null,
+        Pre    => (Is_Grid_Valid(G));
 
     function Sort_By_Height(A : Point; B : Point) return Boolean with
-        Global => null;
+        SPARK_MODE => On,
+        Global     => null,
+        Depends    => (Sort_By_Height'Result => (A, B)),
+        Post       => (if a.Y = b.Y then
+                          Sort_By_Height'Result = (a.X < b.X)
+                       else
+                          Sort_By_Height'Result = (a.Y < b.Y));
 
     package Sorter is new PointVect.Generic_Sorting ("<" => Sort_By_Height);
 
