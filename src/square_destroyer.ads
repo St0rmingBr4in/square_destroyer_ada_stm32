@@ -1,17 +1,23 @@
-with HAL.Bitmap; use HAL.Bitmap;
+with HAL.Bitmap;             use HAL.Bitmap;
 with Ada.Containers.Vectors; use Ada.Containers;
 
 package Square_Destroyer is
 
-    procedure Square_Destroyer with
+---------- Game main procedure -------------------------------------------------
+
+    procedure Run with
         Global => null;
 
+--------------------------------------------------------------------------------
+
 private
+
+---------- Types and constants -------------------------------------------------
 
     GRID_WIDTH          : constant := 6;
     GRID_HEIGHT         : constant := 8;
     SQUARE_SIZE         : constant := 40;
-    COLORED_SQUARE_SIZE : constant := SQUARE_SIZE - 1;
+    SQUARE_SURFACE_SIZE : constant := SQUARE_SIZE - 1;
 
     type Square is (Blue, Green, Red, Yellow, Magenta, Cyan);
     type Grid   is
@@ -51,7 +57,7 @@ private
         Post       => (Is_In_Grid'Result = (P.X in 1..GRID_WIDTH and then
                                             P.Y in 1..GRID_HEIGHT));
 
---------------------------------------------------------------------------------
+---------- Init procedures -----------------------------------------------------
 
     procedure Init_Grid(G : out Grid) with
         Global  => null,
@@ -60,6 +66,8 @@ private
 
     procedure Init_Board with
         Global => null;
+
+---------- Game loop procedures and functions ----------------------------------
 
     procedure Get_Input(G           : Grid;
                         Last_Square : out Optional_Point;
@@ -101,18 +109,39 @@ private
                                (((abs (A.P.X - B.P.X)) + (abs (A.P.Y - B.P.Y)))
                                  = 1));
 
-    procedure Get_Matching_Neighbourgs(G : Grid; X : Integer; Step_X : Integer; Y : Integer;
-        Step_Y : Integer; S : Square; MatchingSquares : in out PointVect.Vector) with
-        Global => null;
+    procedure Get_Matching_Neighbourgs(
+                                G : Grid;
+                                X : Integer; Step_X : Integer;
+                                Y : Integer; Step_Y : Integer;
+                                S : Square;
+                                Matching_Squares : in out PointVect.Vector) with
+        SPARK_MODE => On,
+        Global     => null,
+        Depends    => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
+        Pre        => (Is_Grid_Valid(G) and then
+                       (Step_X /= 0 or else Step_Y /= 0)),
+        Post       => ((Is_Grid_Valid(G)) and then
+                       (PointVect.Length(Matching_Squares) in
+                        PointVect.Length(Matching_Squares'Old)..(
+                          (GRID_WIDTH / Count_Type'Max(Count_Type(abs Step_X),
+                                                       Count_Type(abs Step_Y)))
+                          - 1 + PointVect.Length(Matching_Squares'Old)))
+                        and then
+                        (for all P of Matching_Squares => ((G(P.X, P.Y) = S))));
 
-    function Is_Move_Legal(G : Grid; P : Point; Combinations : in out
-        PointVect.Vector) return Boolean with
+    function Is_Move_Legal(G : Grid; P : Point;
+                           Combinations : in out PointVect.Vector)
+    return Boolean with
         Global => null;
 
     procedure Draw_Grid(G : Grid) with
         Global => null;
 
-    function Sort_By_Height(A : Point; B : Point) return Boolean;
+    function Sort_By_Height(A : Point; B : Point) return Boolean with
+        Global => null;
+
     package Sorter is new PointVect.Generic_Sorting ("<" => Sort_By_Height);
+
+--------------------------------------------------------------------------------
 
 end Square_Destroyer;

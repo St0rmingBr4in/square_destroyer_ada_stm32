@@ -32,6 +32,8 @@ package body Square_Destroyer is
         return P.X in 1..GRID_WIDTH and then P.Y in 1..GRID_HEIGHT;
     end Is_In_Grid;
 
+---------- Init procedures -----------------------------------------------------
+
     procedure Init_Grid(G : out Grid) is
     begin
         RNG.Interrupts.Initialize_RNG;
@@ -43,8 +45,6 @@ package body Square_Destroyer is
             end loop;
         end loop;
     end Init_Grid;
-
---------------------------------------------------------------------------------
 
     procedure Init_Board is
         BG : constant Bitmap_Color := (Alpha => 255, others => 0);
@@ -94,6 +94,8 @@ package body Square_Destroyer is
         end case;
     end Get_Input;
 
+---------- Game loop procedures and functions ----------------------------------
+
     procedure Update_Grid(G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
@@ -112,7 +114,6 @@ package body Square_Destroyer is
                     Swap(G, Cur_Square.P, Last_Square.P);
                 end if;
             end if;
-
     end Update_Grid;
 
     procedure Swap(G : in out Grid; A : Point; B : Point) is
@@ -130,25 +131,28 @@ package body Square_Destroyer is
         if not A.Valid or else not B.Valid then
             return False;
         end if;
-
         X_Diff := A.P.X - B.P.X;
         Y_Diff := A.P.Y - B.P.Y;
         return ((abs X_Diff) + (abs Y_Diff)) = 1;
-    end;
+    end Are_Adjacent;
 
-    procedure Get_Matching_Neighbourgs(G : Grid; X : Integer; Step_X : Integer; Y : Integer;
-        Step_Y : Integer; S : Square; MatchingSquares : in out PointVect.Vector) is
+    procedure Get_Matching_Neighbourgs(
+                                  G : Grid;
+                                  X : Integer; Step_X : Integer;
+                                  Y : Integer; Step_Y : Integer;
+                                  S : Square;
+                                  Matching_Squares : in out PointVect.Vector) is
         Tmp_X : Integer := X;
         Tmp_Y : Integer := Y;
     begin
         while Tmp_X >= G'First(1) and then Tmp_X <= G'Last(1)
               and then Tmp_Y >= G'First(2) and then Tmp_Y <= G'Last(2)
               and then G(Tmp_X, Tmp_Y) = S loop
-            PointVect.Append(MatchingSquares, (Tmp_X, Tmp_Y));
+            PointVect.Append(Matching_Squares, (Tmp_X, Tmp_Y));
             Tmp_X := Tmp_X + Step_X;
             Tmp_Y := Tmp_Y + Step_Y;
         end loop;
-    end;
+    end Get_Matching_Neighbourgs;
 
     function Sort_By_Height(A : Point; B : Point) return Boolean is
     begin
@@ -157,14 +161,16 @@ package body Square_Destroyer is
         else
             return a.Y < b.Y;
         end if;
-    end;
+    end Sort_By_Height;
 
-    function Is_Move_Legal(G : Grid; P : Point; Combinations : in out
-        PointVect.Vector) return Boolean is
-        S : constant Square := G(P.X, P.Y);
+    function Is_Move_Legal(G            : Grid;
+                           P            : Point;
+                           Combinations : in out PointVect.Vector)
+    return Boolean is
+        S                   : constant Square := G(P.X, P.Y);
         Matching_Horizontal : PointVect.Vector;
-        Matching_Vertical : PointVect.Vector;
-        Legal : Boolean := False;
+        Matching_Vertical   : PointVect.Vector;
+        Legal               : Boolean := False;
     begin
         Get_Matching_Neighbourgs(G, P.X - 1, -1, P.Y, 0, S,
         Matching_Horizontal);
@@ -186,10 +192,10 @@ package body Square_Destroyer is
             Sorter.Sort(Combinations);
         end if;
         return Legal;
-    end;
+    end Is_Move_Legal;
 
     procedure Draw_Grid(G : Grid) is
-        R : Rect  := ((0, 0), COLORED_SQUARE_SIZE, COLORED_SQUARE_SIZE);
+        R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
     begin
         for I in G'Range(1) loop
             for J in G'Range(2) loop
@@ -199,10 +205,11 @@ package body Square_Destroyer is
                 Display.Hidden_Buffer (1).Fill_Rect (R);
             end loop;
         end loop;
-    end;
+    end Draw_Grid;
 
-    procedure Square_Destroyer
-    is
+---------- Game main procedure -------------------------------------------------
+
+    procedure Run is
         G           : Grid;
         Last_Square : Optional_Point := (Valid => False, P => <>);
         Cur_Square  : Optional_Point := (Valid => False, P => <>);
@@ -217,6 +224,8 @@ package body Square_Destroyer is
             --  Update screen
             Display.Update_Layer (1, Copy_Back => True);
         end loop;
-    end Square_Destroyer;
+    end Run;
+
+--------------------------------------------------------------------------------
 
 end Square_Destroyer;
