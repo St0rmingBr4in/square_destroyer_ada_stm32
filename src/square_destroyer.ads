@@ -1,5 +1,5 @@
-with HAL.Bitmap;             use HAL.Bitmap;
-with Ada.Containers.Vectors; use Ada.Containers;
+with HAL.Bitmap; use HAL.Bitmap;
+with Ada.Containers.Ordered_Sets; use Ada.Containers;
 
 package Square_Destroyer is
 
@@ -29,9 +29,20 @@ private
                                HAL.Bitmap.Red, HAL.Bitmap.Yellow,
                                HAL.Bitmap.Magenta, HAL.Bitmap.Cyan);
 
-    package PointVect is new Ada.Containers.Vectors
-     (Index_Type   => Natural,
-      Element_Type => Point);
+    function Sort_By_Height(A : Point; B : Point) return Boolean with
+    SPARK_MODE => On,
+        Global     => null,
+        Depends    => (Sort_By_Height'Result => (A, B)),
+        Post       => (if a.Y = b.Y then
+                          Sort_By_Height'Result = (a.X > b.X)
+                       else
+                          Sort_By_Height'Result = (a.Y > b.Y));
+
+
+
+    package PointSet is new Ada.Containers.Ordered_Sets
+    (Element_Type => Point,
+    "<" => Sort_By_Height);
 
     type Optional_Point is
         record
@@ -114,42 +125,30 @@ private
                                 X : Integer; Step_X : Integer;
                                 Y : Integer; Step_Y : Integer;
                                 S : Square;
-                                Matching_Squares : in out PointVect.Vector) with
+                                Matching_Squares : in out PointSet.Set) with
         SPARK_MODE => On,
         Global     => null,
         Depends    => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
         Pre        => (Is_Grid_Valid(G) and then
                        (Step_X /= 0 or else Step_Y /= 0)),
         Post       => ((Is_Grid_Valid(G)) and then
-                       (PointVect.Length(Matching_Squares) in
-                        PointVect.Length(Matching_Squares'Old)..(
+                       (PointSet.Length(Matching_Squares) in
+                        PointSet.Length(Matching_Squares'Old)..(
                           (GRID_WIDTH / Count_Type'Max(Count_Type(abs Step_X),
                                                        Count_Type(abs Step_Y)))
-                          - 1 + PointVect.Length(Matching_Squares'Old)))
+                          - 1 + PointSet.Length(Matching_Squares'Old)))
                         and then
                         (for all P of Matching_Squares => ((G(P.X, P.Y) = S))));
 
-    function Is_Move_Legal(G : Grid; P : Point;
-                           Combinations : in out PointVect.Vector)
-    return Boolean with
-        Global  => null,
+    procedure Is_Move_Legal(G : Grid; P : Point; Combinations : in out
+        PointSet.Set) with
+        Global => null,
         Pre     => (Is_Grid_Valid(G) and then Is_In_Grid(P));
 
     procedure Draw_Grid(G : Grid) with
         Global => null,
         Pre    => (Is_Grid_Valid(G));
 
-    function Sort_By_Height(A : Point; B : Point) return Boolean with
-        SPARK_MODE => On,
-        Global     => null,
-        Depends    => (Sort_By_Height'Result => (A, B)),
-        Post       => (if a.Y = b.Y then
-                          Sort_By_Height'Result = (a.X < b.X)
-                       else
-                          Sort_By_Height'Result = (a.Y < b.Y));
-
-    package Sorter is new PointVect.Generic_Sorting ("<" => Sort_By_Height);
-
---------------------------------------------------------------------------------
+    --------------------------------------------------------------------------------
 
 end Square_Destroyer;
