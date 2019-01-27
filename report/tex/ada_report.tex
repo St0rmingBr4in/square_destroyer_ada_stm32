@@ -1,0 +1,34 @@
+\input{tex/common_headers.tex}
+
+\newcommand{\name}{Ada report}
+\newcommand{\desc}{
+  \makebox[10cm][c]{Implementation of the game "match 3"}
+  \makebox[10cm][c]{in Ada partially certified.}
+}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+\input{tex/cover}
+
+\large
+\renewcommand*\contentsname{\Large Table of contents}
+
+\startcontents
+\printcontents{ }{1}{}
+
+\newpage
+
+\pagenumbering{arabic}
+\setlength\emergencystretch{.5\textwidth}
+
+\input{tex/introduction_ada}
+\input{tex/work}
+\input{tex/conclusion_ada}
+\input{tex/glossary}
+\input{tex/docs}
+\input{tex/appendices}
+
+
+\end{document}

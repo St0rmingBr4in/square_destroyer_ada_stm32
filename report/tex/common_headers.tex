@@ -9,6 +9,7 @@
 \usepackage{graphicx, caption}
 \usepackage{listings}
 \usepackage{pdfpages}
+\usepackage{tikz}
 \usepackage{titlesec}
 \usepackage{titletoc}
 \usepackage{verbatim}
@@ -34,6 +35,22 @@
 
 \newcolumntype{L}{>{\centering\arraybackslash}m{10cm}}
 
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=black,
+  }
+
+\urlstyle{same}
+\setlength{\parskip}{1em}
+
+
+
+\newcommand\hmm[1]{\ifnum\ifhmode\spacefactor\else2000\fi>1000
+\uppercase{#1}\else#1\fi}
+
 \newcommand{\grid}{\hmm{g}ame grid\xspace}
 \newcommand{\pts}{points\xspace}
 \newcommand{\pt}{point\xspace}
@@ -44,9 +61,6 @@
 \newcommand{\stm}{STM32F429\xspace}
 \newcommand{\threepts}{10\xspace}
 
-\newcommand\hmm[1]{\ifnum\ifhmode\spacefactor\else2000\fi>1000
-\uppercase{#1}\else#1\fi}
-
 \newcommand{\image}[3]{
   \noindent
   \begin{minipage}[c]{\textwidth}
@@ -56,48 +70,5 @@
     }
     \captionof{figure}{#3}
   \end{minipage}
-
 }
 
-
-\usepackage{hyperref}
-\hypersetup{
-  colorlinks=true,
-    linkcolor=black,
-    filecolor=magenta,
-    urlcolor=black,
-  }
-
-\urlstyle{same}
-
-\setlength{\parskip}{1em}
-
-\usepackage{tikz}
-
-\begin{document}
-
-\pagenumbering{gobble}
-
-\input{tex/cover}
-
-\large
-\renewcommand*\contentsname{\Large Table of contents}
-
-\startcontents
-\printcontents{ }{1}{}
-
-\newpage
-
-\pagenumbering{arabic}
-\setlength\emergencystretch{.5\textwidth}
-
-\input{tex/introduction}
-\input{tex/specs}
-\input{tex/work}
-\input{tex/conclusion}
-\input{tex/glossary}
-\input{tex/docs}
-\input{tex/appendices}
-
-
-\end{document}
