@@ -104,7 +104,7 @@ package body Square_Destroyer is
       end case;
    end Get_Input;
 
-   procedure Blink (G : Grid; WorkListMove : PointSet.Set) is
+   procedure Blink (G : Grid; WorkListMove : PointSet.Set; Score : Natural) is
    begin
       for i in 1 .. 10 loop
          for S of WorkListMove loop
@@ -117,19 +117,26 @@ package body Square_Destroyer is
                Display.Hidden_Buffer (1).Fill_Rect (R);
             end;
          end loop;
+         LCD_Std_Out.Put (0, 0, Score'Image);
          Display.Update_Layer (1, Copy_Back => True);
          delay Duration (0.01);
          Draw_Grid (G);
+         LCD_Std_Out.Put (0, 0, Score'Image);
          Display.Update_Layer (1, Copy_Back => True);
       end loop;
    end Blink;
 
-   procedure Process_Moves (G : in out Grid;
-                            WorkListMove : in out PointSet.Set) is
+   procedure Process_Moves (G            : in out Grid;
+                            WorkListMove : in out PointSet.Set;
+                            Score        : in out Natural) is
       WorkListCombination : PointSet.Set;
+      Multiplier          : Natural := 1;
    begin
       while not PointSet.Is_Empty (WorkListMove) loop
-         Blink (G, WorkListMove);
+         Blink (G, WorkListMove, Score);
+         Score := Score + ((MATCH_3_VALUE +
+                           (Natural (PointSet.Length (WorkListMove)) - 3)
+                              * BONUS_PER_SQUARE) * Multiplier);
          while not PointSet.Is_Empty (WorkListMove) loop
             declare
                Element : constant Point :=
@@ -156,14 +163,16 @@ package body Square_Destroyer is
             WorkListMove);
             PointSet.Delete_First (WorkListCombination);
          end loop;
+         Multiplier := Multiplier + 1;
       end loop;
    end Process_Moves;
 
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
-                          Just_Moved  : in out Boolean) is
-      WorkListMove        : PointSet.Set;
+                          Just_Moved  : in out Boolean;
+                          Score       : in out Natural) is
+      WorkListMove : PointSet.Set;
    begin
       if not Are_Adjacent (Cur_Square, Last_Square) then
          return;
@@ -176,7 +185,7 @@ package body Square_Destroyer is
          Last_Square.Valid := False;
          Cur_Square.Valid  := False;
          Just_Moved        := True;
-         Process_Moves (G, WorkListMove);
+         Process_Moves (G, WorkListMove, Score);
       else
          Swap (G, Cur_Square.P, Last_Square.P);
          return;
@@ -294,7 +303,7 @@ package body Square_Destroyer is
       Init_Grid (G);
       loop
          Get_Input (G, Last_Square, Cur_Square, Just_Moved);
-         Update_Grid (G, Last_Square, Cur_Square, Just_Moved);
+         Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score);
          Draw_Grid (G);
 
          --  Draw Score
