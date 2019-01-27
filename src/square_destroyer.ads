@@ -98,16 +98,11 @@ private
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
-                          Just_Moved  : in out Boolean;
-                          Score       : in out Natural) with
+                          Just_Moved  : in out Boolean) with
       Global     => null,
-      Depends    => ((G, Last_Square, Cur_Square, Just_Moved, Score) =>
-                        (G, Cur_Square, Last_Square, Just_Moved, Score)),
+      Depends    => ((G, Last_Square, Cur_Square, Just_Moved) =>
+                        (G, Cur_Square, Last_Square, Just_Moved)),
       Pre        => (Is_Grid_Valid (G));
-
-   procedure Draw_Grid (G : Grid) with
-      Global => null,
-      Pre    => (Is_Grid_Valid (G));
 
    procedure Swap (G : in out Grid; A : Point; B : Point) with
       SPARK_MODE => On,
@@ -156,6 +151,15 @@ private
                             Combinations : in out PointSet.Set) with
       Global => null,
       Pre     => (Is_Grid_Valid (G) and then Is_In_Grid (P));
+
+   procedure Draw_Grid (G : Grid) with
+      Global => null,
+      Pre    => (Is_Grid_Valid (G));
+
+   procedure Blink (G : Grid; WorkListMove : PointSet.Set);
+
+   procedure Process_Moves (G : in out Grid; WorkListMove : in out
+      PointSet.Set);
 
 -------------------------------------------------------------------------------
 

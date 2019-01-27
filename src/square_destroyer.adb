@@ -101,42 +101,41 @@ package body Square_Destroyer is
       end case;
    end Get_Input;
 
-   procedure Update_Grid (G           : in out Grid;
-                          Last_Square : in out Optional_Point;
-                          Cur_Square  : in out Optional_Point;
-                          Just_Moved  : in out Boolean;
-                          Score       : in out Natural) is
-      WorkListMove        : PointSet.Set;
+   procedure Blink (G : Grid; WorkListMove : PointSet.Set) is
+   begin
+      for i in 1 .. 10 loop
+         for S of WorkListMove loop
+            declare
+               R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
+            begin
+               Display.Hidden_Buffer (1).Set_Source (HAL.Bitmap.White);
+               R.Position := ((S.X - G'First (1)) * SQUARE_SIZE,
+               (S.Y - G'First (2)) * SQUARE_SIZE);
+               Display.Hidden_Buffer (1).Fill_Rect (R);
+            end;
+         end loop;
+         Display.Update_Layer (1, Copy_Back => True);
+         delay Duration (0.01);
+         Draw_Grid (G);
+         Display.Update_Layer (1, Copy_Back => True);
+      end loop;
+   end Blink;
+
+   procedure Process_Moves (G : in out Grid;
+                            WorkListMove : in out PointSet.Set) is
       WorkListCombination : PointSet.Set;
    begin
-      if not Are_Adjacent (Cur_Square, Last_Square) then
-         return;
-      end if;
-
-      Swap (G, Cur_Square.P, Last_Square.P);
-      --  We want to evaluate both to fill our worklist
-      Is_Move_Legal (G, Cur_Square.P, WorkListMove);
-      Is_Move_Legal (G, Last_Square.P, WorkListMove);
-      if not PointSet.Is_Empty (WorkListMove) then
-         Last_Square.Valid := False;
-         Cur_Square.Valid  := False;
-         Just_Moved        := True;
-         Score             := Score + 100;
-      else
-         Swap (G, Cur_Square.P, Last_Square.P);
-         return;
-      end if;
-
       while not PointSet.Is_Empty (WorkListMove) loop
+         Blink (G, WorkListMove);
          while not PointSet.Is_Empty (WorkListMove) loop
             declare
                Element : constant Point :=
                   PointSet.First_Element (WorkListMove);
-               Tmp_Y : Integer := Element.Y;
+                  Tmp_Y : Integer := Element.Y;
             begin
                while Tmp_Y > 0 loop
                   exit when not PointSet.Contains (WorkListMove,
-                                                   (Element.X, Tmp_Y));
+                  (Element.X, Tmp_Y));
                   Tmp_Y := Tmp_Y - 1;
                end loop;
                if Tmp_Y = 0 then
@@ -151,10 +150,34 @@ package body Square_Destroyer is
          end loop;
          while not PointSet.Is_Empty (WorkListCombination) loop
             Is_Move_Legal (G, PointSet.First_Element (WorkListCombination),
-                           WorkListMove);
+            WorkListMove);
             PointSet.Delete_First (WorkListCombination);
          end loop;
       end loop;
+   end Process_Moves;
+
+   procedure Update_Grid (G           : in out Grid;
+                          Last_Square : in out Optional_Point;
+                          Cur_Square  : in out Optional_Point;
+                          Just_Moved  : in out Boolean) is
+      WorkListMove        : PointSet.Set;
+   begin
+      if not Are_Adjacent (Cur_Square, Last_Square) then
+         return;
+      end if;
+      Swap (G, Cur_Square.P, Last_Square.P);
+      --  We want to evaluate both to fill our worklist
+      Is_Move_Legal (G, Cur_Square.P, WorkListMove);
+      Is_Move_Legal (G, Last_Square.P, WorkListMove);
+      if not PointSet.Is_Empty (WorkListMove) then
+         Last_Square.Valid := False;
+         Cur_Square.Valid  := False;
+         Just_Moved        := True;
+         Process_Moves (G, WorkListMove);
+      else
+         Swap (G, Cur_Square.P, Last_Square.P);
+         return;
+      end if;
    end Update_Grid;
 
    procedure Draw_Grid (G : Grid) is
@@ -255,7 +278,7 @@ package body Square_Destroyer is
       Init_Grid (G);
       loop
          Get_Input (G, Last_Square, Cur_Square, Just_Moved);
-         Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score);
+         Update_Grid (G, Last_Square, Cur_Square, Just_Moved);
          Draw_Grid (G);
 
          --  Draw Score
