@@ -167,6 +167,40 @@ package body Square_Destroyer is
       end loop;
    end Process_Moves;
 
+   function Is_Unsolvable(G : in out Grid) return Boolean
+   is
+      Solution : PointSet.Set;
+   begin
+      for I in G'Range (1) loop
+         for J in G'Range (2) loop
+            if I > G'First(1) then
+               Swap (G, (I, J), (I - 1, J));
+               Is_Move_Legal (G, (I,J), Solution);
+               Swap (G, (I, J), (I - 1, J));
+            end if;
+            if I < G'Last(1) then
+               Swap (G, (I, J), (I + 1, J));
+               Is_Move_Legal (G, (I,J), Solution);
+               Swap (G, (I, J), (I + 1, J));
+            end if;
+            if J > G'First(2) then
+               Swap (G, (I, J), (I, J - 1));
+               Is_Move_Legal (G, (I,J), Solution);
+               Swap (G, (I, J), (I, J - 1));
+            end if;
+            if J < G'Last(2) then
+               Swap (G, (I, J), (I, J + 1));
+               Is_Move_Legal (G, (I,J), Solution);
+               Swap (G, (I, J), (I, J + 1));
+            end if;
+            if not PointSet.Is_Empty (Solution) then
+               return False;
+            end if;
+         end loop;
+      end loop;
+      return True;
+   end Is_Unsolvable;
+
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
@@ -300,17 +334,24 @@ package body Square_Destroyer is
       Score       : Natural        := 0;
    begin
       Init_Board;
-      Init_Grid (G);
       loop
-         Get_Input (G, Last_Square, Cur_Square, Just_Moved);
-         Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score);
-         Draw_Grid (G);
+         Score := 0;
+         Init_Grid (G);
+         loop
+            Get_Input (G, Last_Square, Cur_Square, Just_Moved);
+            Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score);
+            Draw_Grid (G);
 
-         --  Draw Score
-         LCD_Std_Out.Put (0, 0, Score'Image);
-
-         --  Update screen
-         Display.Update_Layer (1, Copy_Back => True);
+            --  Draw Score
+            LCD_Std_Out.Put (0, 0, Score'Image);
+            if Is_Unsolvable(G) then
+               LCD_Std_Out.Put("GAME OVER");
+               delay Duration(5.0);
+               exit;
+            end if;
+            --  Update screen
+            Display.Update_Layer (1, Copy_Back => True);
+         end loop;
       end loop;
    end Run;
 
