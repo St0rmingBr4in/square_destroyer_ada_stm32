@@ -135,17 +135,22 @@ private
       SPARK_MODE => On,
       Global     => null,
       Depends    => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
-      Pre        => (Is_Grid_Valid (G) and then
-                     (Step_X /= 0 or else Step_Y /= 0)),
-      Post       => ((Is_Grid_Valid (G)) and then
-                        (PointSet.Length (Matching_Squares) in
-                           PointSet.Length (Matching_Squares'Old) .. (
+      Pre        => ((Step_X /= 0 or else Step_Y /= 0)),
+      Post       => ((PointSet.Length (Matching_Squares) in
+                        PointSet.Length (Matching_Squares'Old) .. (
                            (GRID_WIDTH / Count_Type'Max (
                                                    Count_Type (abs Step_X),
                                                    Count_Type (abs Step_Y)))
                            - 1 + PointSet.Length (Matching_Squares'Old)))
                      and then
                      (for all P of Matching_Squares => ((G (P.X, P.Y) = S))));
+
+   function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean with
+      SPARK_MODE => On,
+      Global     => null,
+      Depends    => (Is_Match_3'Result => (G, X, Y)),
+      Pre        => (X in 1 .. GRID_WIDTH and then Y in 1 .. GRID_HEIGHT),
+      Post       => (if X < 3 and then Y < 3 then Is_Match_3'Result = False);
 
    procedure Is_Move_Legal (G : Grid; P : Point;
                             Combinations : in out PointSet.Set) with

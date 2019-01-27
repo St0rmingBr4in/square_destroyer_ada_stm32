@@ -48,7 +48,10 @@ package body Square_Destroyer is
 
       for I in G'Range (1) loop
          for J in G'Range (2) loop
-            G (I, J) := Get_Random_Square;
+            loop
+               G (I, J) := Get_Random_Square;
+               exit when not Is_Match_3 (G, I, J);
+            end loop;
          end loop;
       end loop;
    end Init_Grid;
@@ -239,6 +242,19 @@ package body Square_Destroyer is
          return A.Y > B.Y;
       end if;
    end Sort_By_Height;
+
+   function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean is
+      S    : constant Square := G (X, Y);
+      Line : PointSet.Set;
+   begin
+      Get_Matching_Neighbourgs (G, X, -1, Y, 0, S, Line);
+      if PointSet.Length (Line) >= 3 then
+         return True;
+      end if;
+      PointSet.Clear (Line);
+      Get_Matching_Neighbourgs (G, X, 0, Y, -1, S, Line);
+      return PointSet.Length (Line) >= 3;
+   end Is_Match_3;
 
    procedure Is_Move_Legal (G : Grid; P : Point; Combinations : in out
                             PointSet.Set) is
