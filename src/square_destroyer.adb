@@ -104,7 +104,8 @@ package body Square_Destroyer is
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
-                          Just_Moved  : in out Boolean) is
+                          Just_Moved  : in out Boolean;
+                          Score       : in out Natural) is
       WorkListMove        : PointSet.Set;
       WorkListCombination : PointSet.Set;
    begin
@@ -120,6 +121,7 @@ package body Square_Destroyer is
          Last_Square.Valid := False;
          Cur_Square.Valid  := False;
          Just_Moved        := True;
+         Score             := Score + 100;
       else
          Swap (G, Cur_Square.P, Last_Square.P);
          return;
@@ -154,6 +156,19 @@ package body Square_Destroyer is
          end loop;
       end loop;
    end Update_Grid;
+
+   procedure Draw_Grid (G : Grid) is
+      R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
+   begin
+      for I in G'Range (1) loop
+         for J in G'Range (2) loop
+            Display.Hidden_Buffer (1).Set_Source (CM (G (I, J)));
+            R.Position := ((I - G'First (1)) * SQUARE_SIZE,
+                           (J - G'First (2)) * SQUARE_SIZE);
+            Display.Hidden_Buffer (1).Fill_Rect (R);
+         end loop;
+      end loop;
+   end Draw_Grid;
 
    procedure Swap (G : in out Grid; A : Point; B : Point) is
       C : constant Square := G (A.X, A.Y);
@@ -227,19 +242,6 @@ package body Square_Destroyer is
       end if;
    end Is_Move_Legal;
 
-   procedure Draw_Grid (G : Grid) is
-      R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
-   begin
-      for I in G'Range (1) loop
-         for J in G'Range (2) loop
-            Display.Hidden_Buffer (1).Set_Source (CM (G (I, J)));
-            R.Position := ((I - G'First (1)) * SQUARE_SIZE,
-                           (J - G'First (2)) * SQUARE_SIZE);
-            Display.Hidden_Buffer (1).Fill_Rect (R);
-         end loop;
-      end loop;
-   end Draw_Grid;
-
 ---------- Game main procedure ------------------------------------------------
 
    procedure Run is
@@ -247,13 +249,18 @@ package body Square_Destroyer is
       Last_Square : Optional_Point := (Valid => False, P => <>);
       Cur_Square  : Optional_Point := (Valid => False, P => <>);
       Just_Moved  : Boolean        := False;
+      Score       : Natural        := 0;
    begin
       Init_Board;
       Init_Grid (G);
       loop
          Get_Input (G, Last_Square, Cur_Square, Just_Moved);
-         Update_Grid (G, Last_Square, Cur_Square, Just_Moved);
+         Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score);
          Draw_Grid (G);
+
+         --  Draw Score
+         LCD_Std_Out.Put (0, 0, Score'Image);
+
          --  Update screen
          Display.Update_Layer (1, Copy_Back => True);
       end loop;

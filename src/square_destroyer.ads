@@ -18,6 +18,8 @@ private
    GRID_HEIGHT         : constant := 8;
    SQUARE_SIZE         : constant := 40;
    SQUARE_SURFACE_SIZE : constant := SQUARE_SIZE - 1;
+   MATCH_3_VALUE       : constant := 100;
+   BONUS_PER_SQUARE    : constant := 50;
 
    type Square is (Blue, Green, Red, Yellow, Magenta, Cyan);
    type Grid   is
@@ -96,11 +98,16 @@ private
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
-                          Just_Moved  : in out Boolean) with
+                          Just_Moved  : in out Boolean;
+                          Score       : in out Natural) with
       Global     => null,
-      Depends    => ((G, Last_Square, Cur_Square, Just_Moved) =>
-                        (G, Cur_Square, Last_Square, Just_Moved)),
+      Depends    => ((G, Last_Square, Cur_Square, Just_Moved, Score) =>
+                        (G, Cur_Square, Last_Square, Just_Moved, Score)),
       Pre        => (Is_Grid_Valid (G));
+
+   procedure Draw_Grid (G : Grid) with
+      Global => null,
+      Pre    => (Is_Grid_Valid (G));
 
    procedure Swap (G : in out Grid; A : Point; B : Point) with
       SPARK_MODE => On,
@@ -149,10 +156,6 @@ private
                             Combinations : in out PointSet.Set) with
       Global => null,
       Pre     => (Is_Grid_Valid (G) and then Is_In_Grid (P));
-
-   procedure Draw_Grid (G : Grid) with
-      Global => null,
-      Pre    => (Is_Grid_Valid (G));
 
 -------------------------------------------------------------------------------
 
