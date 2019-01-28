@@ -157,7 +157,10 @@ private
       Global => null,
       Pre    => (Is_Grid_Valid (G));
 
-   function Is_Unsolvable (G : in out Grid) return Boolean;
+   function Is_Unsolvable (G : in out Grid) return Boolean with
+      Global  => null,
+      Pre     => (Is_Grid_Valid (G)),
+      Post    => (G = G'Old);
 
 ---------- Game loop procedures -----------------------------------------------
 
