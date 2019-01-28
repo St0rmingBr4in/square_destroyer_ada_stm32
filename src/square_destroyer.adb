@@ -3,13 +3,13 @@ with Last_Chance_Handler;  pragma Unreferenced (Last_Chance_Handler);
 --  an exception is propagated. We need it in the executable, therefore it
 --  must be somewhere in the closure of the context clauses.
 
-with HAL;                   use HAL;
-with STM32.Board;           use STM32.Board;
-with HAL.Touch_Panel;
-with STM32.User_Button;     use STM32;
 with BMP_Fonts;
+with HAL;                   use HAL;
+with HAL.Touch_Panel;
 with LCD_Std_Out;
+with STM32.Board;           use STM32.Board;
 with STM32.RNG.Interrupts;
+with STM32.User_Button;     use STM32;
 
 package body Square_Destroyer is
 
@@ -330,6 +330,12 @@ package body Square_Destroyer is
 ---------- Game main procedure ------------------------------------------------
 
    procedure Run is
+      Score_Pos       : constant Point := (0, 0);
+      Game_Over_Pos   : constant Point := (2 * SQUARE_SIZE,
+                                           Natural (3.5 * SQUARE_SIZE));
+      Final_Score_Pos : constant Point := (SQUARE_SIZE,
+                                           Natural (4.25 * SQUARE_SIZE));
+
       G           : Grid;
       Last_Square : Optional_Point := (Valid => False, P => <>);
       Cur_Square  : Optional_Point := (Valid => False, P => <>);
@@ -344,13 +350,18 @@ package body Square_Destroyer is
          loop
             Get_Input (G, Last_Square, Cur_Square, Just_Moved);
             Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score,
-            Solvable);
+                         Solvable);
             Draw_Grid (G);
 
-            --  Draw Score
-            LCD_Std_Out.Put (0, 0, Score'Image);
-            if not Solvable then
-               LCD_Std_Out.Put ("GAME OVER. Final Score: " & Score'Image);
+            if Solvable then
+               --  Draw Score
+               LCD_Std_Out.Put (Score_Pos.X, Score_Pos.Y, Score'Image);
+            else
+               --  Game Over
+               LCD_Std_Out.Put (Game_Over_Pos.X, Game_Over_Pos.Y,
+                                "GAME OVER");
+               LCD_Std_Out.Put (Final_Score_Pos.X, Final_Score_Pos.Y,
+                                "Final Score: " & Score'Image);
                delay Duration (5.0);
                exit;
             end if;

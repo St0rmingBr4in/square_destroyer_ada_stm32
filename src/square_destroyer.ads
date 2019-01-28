@@ -1,5 +1,5 @@
-with HAL.Bitmap; use HAL.Bitmap;
 with Ada.Containers.Ordered_Sets; use Ada.Containers;
+with HAL.Bitmap;                  use HAL.Bitmap;
 
 package Square_Destroyer is
 
@@ -14,9 +14,14 @@ private
 
 ---------- Types and constants ------------------------------------------------
 
-   GRID_WIDTH          : constant := 6;
-   GRID_HEIGHT         : constant := 8;
+   SCREEN_WIDTH        : constant := 240;
+   SCREEN_HEIGHT       : constant := 340;
    SQUARE_SIZE         : constant := 40;
+   --   GRID_WIDTH  := 240 / 40 = 6
+   GRID_WIDTH          : constant := SCREEN_WIDTH   / SQUARE_SIZE;
+   --   GRID_HEIGHT := 320 / 40 = 8
+   GRID_HEIGHT         : constant := SCREEN_HEIGHT  / SQUARE_SIZE;
+   --   SQUARE_SURFACE_SIZE := 40 - 1 = 39
    SQUARE_SURFACE_SIZE : constant := SQUARE_SIZE - 1;
    MATCH_3_VALUE       : constant := 100;
    BONUS_PER_SQUARE    : constant := 50;
