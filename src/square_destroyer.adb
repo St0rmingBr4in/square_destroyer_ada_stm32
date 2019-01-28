@@ -53,35 +53,12 @@ package body Square_Destroyer is
 
 ---------- Helper function for Init_Grid --------------------------------------
 
-   procedure Get_Matching_Neighbourgs (
-                                  G : Grid;
-                                  X : Integer; Step_X : Integer;
-                                  Y : Integer; Step_Y : Integer;
-                                  S : Square;
-                                  Matching_Squares : in out PointSet.Set) is
-      Tmp_X : Integer := X;
-      Tmp_Y : Integer := Y;
-   begin
-      while Tmp_X >= G'First (1) and then Tmp_X <= G'Last (1)
-            and then Tmp_Y >= G'First (2) and then Tmp_Y <= G'Last (2)
-            and then G (Tmp_X, Tmp_Y) = S loop
-         PointSet.Include (Matching_Squares, (Tmp_X, Tmp_Y));
-         Tmp_X := Tmp_X + Step_X;
-         Tmp_Y := Tmp_Y + Step_Y;
-      end loop;
-   end Get_Matching_Neighbourgs;
-
    function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean is
       S    : constant Square := G (X, Y);
-      Line : PointSet.Set;
    begin
-      Get_Matching_Neighbourgs (G, X, -1, Y, 0, S, Line);
-      if PointSet.Length (Line) >= 3 then
-         return True;
-      end if;
-      PointSet.Clear (Line);
-      Get_Matching_Neighbourgs (G, X, 0, Y, -1, S, Line);
-      return PointSet.Length (Line) >= 3;
+      return
+         (X >= 3 and then G (X - 1, Y) = S and then G (X - 2, Y) = S) or else
+         (Y >= 3 and then G (X, Y - 1) = S and then G (X, Y - 2) = S);
    end Is_Match_3;
 
 ---------- Init procedures ----------------------------------------------------
@@ -145,6 +122,24 @@ package body Square_Destroyer is
       G (A.X, A.Y) := G (B.X, B.Y);
       G (B.X, B.Y) := C;
    end Swap;
+
+   procedure Get_Matching_Neighbourgs (
+                                  G : Grid;
+                                  X : Integer; Step_X : Integer;
+                                  Y : Integer; Step_Y : Integer;
+                                  S : Square;
+                                  Matching_Squares : in out PointSet.Set) is
+      Tmp_X : Integer := X;
+      Tmp_Y : Integer := Y;
+   begin
+      while Tmp_X >= G'First (1) and then Tmp_X <= G'Last (1)
+            and then Tmp_Y >= G'First (2) and then Tmp_Y <= G'Last (2)
+            and then G (Tmp_X, Tmp_Y) = S loop
+         PointSet.Include (Matching_Squares, (Tmp_X, Tmp_Y));
+         Tmp_X := Tmp_X + Step_X;
+         Tmp_Y := Tmp_Y + Step_Y;
+      end loop;
+   end Get_Matching_Neighbourgs;
 
    procedure Is_Move_Legal (G : Grid; P : Point;
                             Combinations : in out PointSet.Set) is

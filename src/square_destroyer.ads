@@ -37,7 +37,7 @@ private
 
    package PointSet is new Ada.Containers.Ordered_Sets
       (Element_Type => Point,
-      "<" => Sort_By_Height);
+       "<"          => Sort_By_Height);
 
    SCREEN_WIDTH        : constant := 240;
    SCREEN_HEIGHT       : constant := 340;
@@ -75,27 +75,11 @@ private
 ---------- Random Wrapper -----------------------------------------------------
 
    function Get_Random_Square return Square with
+      Global  => null,
+      Depends => (Get_Random_Square'Result => null),
       Post    => (Get_Random_Square'Result'Valid);
 
 ---------- Helper function and procedure for Init_Grid ------------------------
-
-   procedure Get_Matching_Neighbourgs (G : Grid;
-                                       X : Integer; Step_X : Integer;
-                                       Y : Integer; Step_Y : Integer;
-                                       S : Square;
-                                       Matching_Squares : in out PointSet.Set)
-   with
-      Global     => null,
-      Depends    => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
-      Pre        => ((Step_X /= 0 or else Step_Y /= 0)),
-      Post       => ((PointSet.Length (Matching_Squares) in
-                        PointSet.Length (Matching_Squares'Old) .. (
-                           (GRID_WIDTH / Count_Type'Max (
-                                                   Count_Type (abs Step_X),
-                                                   Count_Type (abs Step_Y)))
-                           - 1 + PointSet.Length (Matching_Squares'Old)))
-                     and then
-                     (for all P of Matching_Squares => ((G (P.X, P.Y) = S))));
 
    function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean with
       Global     => null,
@@ -138,6 +122,30 @@ private
       Pre        => (Is_In_Grid (A) and then Is_In_Grid (B)),
       Post       => (G (A.X, A.Y) = G'Old (B.X, B.Y) and then
                      G (B.X, B.Y) = G'Old (A.X, A.Y));
+
+   procedure Get_Matching_Neighbourgs (G : Grid;
+                                       X : Integer; Step_X : Integer;
+                                       Y : Integer; Step_Y : Integer;
+                                       S : Square;
+                                       Matching_Squares : in out PointSet.Set)
+   with
+      Global     => null,
+      Depends    => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
+      Pre        => (Is_Grid_Valid (G) and then
+                     X in 0 .. GRID_WIDTH  + 1 and then
+                     Y in 0 .. GRID_HEIGHT + 1 and then
+                     (Step_X /= 0 or else Step_Y /= 0)),
+      Post       => ((PointSet.Length (Matching_Squares) in
+                        PointSet.Length (Matching_Squares'Old) .. (
+                           (GRID_WIDTH / Count_Type'Max (
+                                                   Count_Type (abs Step_X),
+                                                   Count_Type (abs Step_Y)))
+                           - 1 + PointSet.Length (Matching_Squares'Old)))
+                     and then
+                     (for all P of Matching_Squares =>
+                        ((G (P.X, P.Y) = S) and then
+                           (if not PointSet.Contains(Matching_Squares'Old, P)
+                              then P.X = X or else P.Y = Y))));
 
    procedure Is_Move_Legal (G : Grid; P : Point;
                             Combinations : in out PointSet.Set) with
@@ -204,7 +212,8 @@ private
 
    procedure Draw_Grid (G : Grid) with
       Global => null,
-      Pre    => (Is_Grid_Valid (G));
+      Pre    => (Is_Grid_Valid (G)),
+      Post   => (Is_Grid_Valid (G));
 
 -------------------------------------------------------------------------------
 
