@@ -51,6 +51,39 @@ package body Square_Destroyer is
                          UInt32 (Square'Pos (Square'Last) + 1));
    end Get_Random_Square;
 
+---------- Helper function for Init_Grid --------------------------------------
+
+   procedure Get_Matching_Neighbourgs (
+                                  G : Grid;
+                                  X : Integer; Step_X : Integer;
+                                  Y : Integer; Step_Y : Integer;
+                                  S : Square;
+                                  Matching_Squares : in out PointSet.Set) is
+      Tmp_X : Integer := X;
+      Tmp_Y : Integer := Y;
+   begin
+      while Tmp_X >= G'First (1) and then Tmp_X <= G'Last (1)
+            and then Tmp_Y >= G'First (2) and then Tmp_Y <= G'Last (2)
+            and then G (Tmp_X, Tmp_Y) = S loop
+         PointSet.Include (Matching_Squares, (Tmp_X, Tmp_Y));
+         Tmp_X := Tmp_X + Step_X;
+         Tmp_Y := Tmp_Y + Step_Y;
+      end loop;
+   end Get_Matching_Neighbourgs;
+
+   function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean is
+      S    : constant Square := G (X, Y);
+      Line : PointSet.Set;
+   begin
+      Get_Matching_Neighbourgs (G, X, -1, Y, 0, S, Line);
+      if PointSet.Length (Line) >= 3 then
+         return True;
+      end if;
+      PointSet.Clear (Line);
+      Get_Matching_Neighbourgs (G, X, 0, Y, -1, S, Line);
+      return PointSet.Length (Line) >= 3;
+   end Is_Match_3;
+
 ---------- Init procedures ----------------------------------------------------
 
    procedure Init_Grid (G : out Grid) is
@@ -91,50 +124,52 @@ package body Square_Destroyer is
       Display.Update_Layer (1, Copy_Back => True);
    end Init_Board;
 
----------- Game loop procedures and functions ---------------------------------
+---------- Helper functions and procedures for Update_Grid --------------------
 
-   procedure Get_Input (Last_Square : out Optional_Point;
-                        Cur_Square  : in out Optional_Point;
-                        Just_Moved  : in out Boolean) is
-      State : constant HAL.Touch_Panel.TP_State :=
-         STM32.Board.Touch_Panel.Get_All_Touch_Points;
+   function Are_Adjacent (A : Optional_Point; B : Optional_Point)
+   return Boolean is
+      X_Diff : Integer;
+      Y_Diff : Integer;
    begin
-      case State'Length is
-         when 0 =>
-            Just_Moved := False;
-         when 1 =>
-            if not Just_Moved then
-               Last_Square := Cur_Square;
-               Cur_Square :=
-               (Valid => True,
-                P => ((State (State'First).X / SQUARE_SIZE) + Grid'First (1),
-                      (State (State'First).Y / SQUARE_SIZE) + Grid'First (2)));
-            end if;
-         when others => null;
-      end case;
-   end Get_Input;
+      if not A.Valid or else not B.Valid then
+         return False;
+      end if;
+      X_Diff := A.P.X - B.P.X;
+      Y_Diff := A.P.Y - B.P.Y;
+      return ((abs X_Diff) + (abs Y_Diff)) = 1;
+   end Are_Adjacent;
 
-   procedure Blink (G : Grid; WorkListMove : PointSet.Set; Score : Natural) is
+   procedure Swap (G : in out Grid; A : Point; B : Point) is
+      C : constant Square := G (A.X, A.Y);
    begin
-      for i in 1 .. 10 loop
-         for S of WorkListMove loop
-            declare
-               R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
-            begin
-               Display.Hidden_Buffer (1).Set_Source (HAL.Bitmap.White);
-               R.Position := ((S.X - G'First (1)) * SQUARE_SIZE,
-               (S.Y - G'First (2)) * SQUARE_SIZE);
-               Display.Hidden_Buffer (1).Fill_Rect (R);
-            end;
-         end loop;
-         LCD_Std_Out.Put (0, 0, Score'Image);
-         Display.Update_Layer (1, Copy_Back => True);
-         delay Duration (0.01);
-         Draw_Grid (G);
-         LCD_Std_Out.Put (0, 0, Score'Image);
-         Display.Update_Layer (1, Copy_Back => True);
-      end loop;
-   end Blink;
+      G (A.X, A.Y) := G (B.X, B.Y);
+      G (B.X, B.Y) := C;
+   end Swap;
+
+   procedure Is_Move_Legal (G : Grid; P : Point;
+                            Combinations : in out PointSet.Set) is
+      S                   : constant Square := G (P.X, P.Y);
+      Matching_Horizontal : PointSet.Set;
+      Matching_Vertical   : PointSet.Set;
+      Legal               : Boolean := False;
+   begin
+      Get_Matching_Neighbourgs (G, P.X - 1, -1, P.Y, 0, S,
+                                Matching_Horizontal);
+      Get_Matching_Neighbourgs (G, P.X + 1, 1, P.Y, 0, S, Matching_Horizontal);
+      Get_Matching_Neighbourgs (G, P.X, 0, P.Y - 1, -1, S, Matching_Vertical);
+      Get_Matching_Neighbourgs (G, P.X, 0, P.Y + 1, 1, S, Matching_Vertical);
+      if PointSet.Length (Matching_Horizontal) >= 2 then
+         Combinations := PointSet.Union (Matching_Horizontal, Combinations);
+         Legal := True;
+      end if;
+      if PointSet.Length (Matching_Vertical) >= 2 then
+         Combinations := PointSet.Union (Matching_Vertical, Combinations);
+         Legal := True;
+      end if;
+      if Legal then
+         PointSet.Include (Combinations, P);
+      end if;
+   end Is_Move_Legal;
 
    procedure Process_Moves (G            : in out Grid;
                             WorkListMove : in out PointSet.Set;
@@ -170,12 +205,34 @@ package body Square_Destroyer is
          end loop;
          while not PointSet.Is_Empty (WorkListCombination) loop
             Is_Move_Legal (G, PointSet.First_Element (WorkListCombination),
-            WorkListMove);
+                           WorkListMove);
             PointSet.Delete_First (WorkListCombination);
          end loop;
          Multiplier := Multiplier + 1;
       end loop;
    end Process_Moves;
+
+   procedure Blink (G : Grid; WorkListMove : PointSet.Set; Score : Natural) is
+   begin
+      for i in 1 .. 10 loop
+         for S of WorkListMove loop
+            declare
+               R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
+            begin
+               Display.Hidden_Buffer (1).Set_Source (HAL.Bitmap.White);
+               R.Position := ((S.X - G'First (1)) * SQUARE_SIZE,
+               (S.Y - G'First (2)) * SQUARE_SIZE);
+               Display.Hidden_Buffer (1).Fill_Rect (R);
+            end;
+         end loop;
+         LCD_Std_Out.Put (0, 0, Score'Image);
+         Display.Update_Layer (1, Copy_Back => True);
+         delay Duration (0.01);
+         Draw_Grid (G);
+         LCD_Std_Out.Put (0, 0, Score'Image);
+         Display.Update_Layer (1, Copy_Back => True);
+      end loop;
+   end Blink;
 
    function Is_Unsolvable (G : in out Grid) return Boolean
    is
@@ -210,6 +267,29 @@ package body Square_Destroyer is
       end loop;
       return True;
    end Is_Unsolvable;
+
+---------- Game loop procedures and functions ---------------------------------
+
+   procedure Get_Input (Last_Square : out Optional_Point;
+                        Cur_Square  : in out Optional_Point;
+                        Just_Moved  : in out Boolean) is
+      State : constant HAL.Touch_Panel.TP_State :=
+         STM32.Board.Touch_Panel.Get_All_Touch_Points;
+   begin
+      case State'Length is
+         when 0 =>
+            Just_Moved := False;
+         when 1 =>
+            if not Just_Moved then
+               Last_Square := Cur_Square;
+               Cur_Square :=
+               (Valid => True,
+                P => ((State (State'First).X / SQUARE_SIZE) + Grid'First (1),
+                      (State (State'First).Y / SQUARE_SIZE) + Grid'First (2)));
+            end if;
+         when others => null;
+      end case;
+   end Get_Input;
 
    procedure Update_Grid (G           : in out Grid;
                           Last_Square : in out Optional_Point;
@@ -251,82 +331,6 @@ package body Square_Destroyer is
          end loop;
       end loop;
    end Draw_Grid;
-
-   procedure Swap (G : in out Grid; A : Point; B : Point) is
-      C : constant Square := G (A.X, A.Y);
-   begin
-      G (A.X, A.Y) := G (B.X, B.Y);
-      G (B.X, B.Y) := C;
-   end Swap;
-
-   function Are_Adjacent (A : Optional_Point; B : Optional_Point)
-   return Boolean is
-      X_Diff : Integer;
-      Y_Diff : Integer;
-   begin
-      if not A.Valid or else not B.Valid then
-         return False;
-      end if;
-      X_Diff := A.P.X - B.P.X;
-      Y_Diff := A.P.Y - B.P.Y;
-      return ((abs X_Diff) + (abs Y_Diff)) = 1;
-   end Are_Adjacent;
-
-   procedure Get_Matching_Neighbourgs (
-                                  G : Grid;
-                                  X : Integer; Step_X : Integer;
-                                  Y : Integer; Step_Y : Integer;
-                                  S : Square;
-                                  Matching_Squares : in out PointSet.Set) is
-      Tmp_X : Integer := X;
-      Tmp_Y : Integer := Y;
-   begin
-      while Tmp_X >= G'First (1) and then Tmp_X <= G'Last (1)
-            and then Tmp_Y >= G'First (2) and then Tmp_Y <= G'Last (2)
-            and then G (Tmp_X, Tmp_Y) = S loop
-         PointSet.Include (Matching_Squares, (Tmp_X, Tmp_Y));
-         Tmp_X := Tmp_X + Step_X;
-         Tmp_Y := Tmp_Y + Step_Y;
-      end loop;
-   end Get_Matching_Neighbourgs;
-
-   function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean is
-      S    : constant Square := G (X, Y);
-      Line : PointSet.Set;
-   begin
-      Get_Matching_Neighbourgs (G, X, -1, Y, 0, S, Line);
-      if PointSet.Length (Line) >= 3 then
-         return True;
-      end if;
-      PointSet.Clear (Line);
-      Get_Matching_Neighbourgs (G, X, 0, Y, -1, S, Line);
-      return PointSet.Length (Line) >= 3;
-   end Is_Match_3;
-
-   procedure Is_Move_Legal (G : Grid; P : Point; Combinations : in out
-                            PointSet.Set) is
-      S                   : constant Square := G (P.X, P.Y);
-      Matching_Horizontal : PointSet.Set;
-      Matching_Vertical   : PointSet.Set;
-      Legal               : Boolean := False;
-   begin
-      Get_Matching_Neighbourgs (G, P.X - 1, -1, P.Y, 0, S,
-                                Matching_Horizontal);
-      Get_Matching_Neighbourgs (G, P.X + 1, 1, P.Y, 0, S, Matching_Horizontal);
-      Get_Matching_Neighbourgs (G, P.X, 0, P.Y - 1, -1, S, Matching_Vertical);
-      Get_Matching_Neighbourgs (G, P.X, 0, P.Y + 1, 1, S, Matching_Vertical);
-      if PointSet.Length (Matching_Horizontal) >= 2 then
-         Combinations := PointSet.Union (Matching_Horizontal, Combinations);
-         Legal := True;
-      end if;
-      if PointSet.Length (Matching_Vertical) >= 2 then
-         Combinations := PointSet.Union (Matching_Vertical, Combinations);
-         Legal := True;
-      end if;
-      if Legal then
-         PointSet.Include (Combinations, P);
-      end if;
-   end Is_Move_Legal;
 
 ---------- Game main procedure ------------------------------------------------
 
