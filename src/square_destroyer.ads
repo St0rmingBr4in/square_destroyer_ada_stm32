@@ -101,7 +101,13 @@ private
       Global     => null,
       Depends    => (Is_Match_3'Result => (G, X, Y)),
       Pre        => (X in 1 .. GRID_WIDTH and then Y in 1 .. GRID_HEIGHT),
-      Post       => (if X < 3 and then Y < 3 then Is_Match_3'Result = False);
+      Post       => (Is_Match_3'Result =
+                        (X >= 3 and then
+                         G (X - 1, Y) = G (X, Y) and then
+                         G (X - 2, Y) = G (X, Y)) or else
+                           (Y >= 3 and then
+                              G (X, Y - 1) = G (X, Y) and then
+                              G (X, Y - 2) = G (X, Y)));
 
 ---------- Init procedures ----------------------------------------------------
 
