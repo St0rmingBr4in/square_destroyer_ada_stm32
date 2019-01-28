@@ -6,7 +6,7 @@ GPRBUILD=gprbuild
 GPRCLEAN=gprclean
 BUILDDIR=obj/stm32f429/$(PROJ)
 CROSS=arm-none-eabi
-PATH:=$(HOME)/opt/GNAT/2018-arm-elf/bin:$(PATH)
+PATH:=$(HOME)/opt/GNAT/2018-arm-elf/bin:$(HOME)/opt/GNAT/2018/bin/:$(PATH)
 
 OBJCOPY=$(CROSS)-objcopy
 
@@ -32,6 +32,9 @@ $(BIN): $(ELF)
 $(ELF):: FORCE
 	$(GPRBUILD) -XBUILD=$(BUILD) $(GPR)
 	cp $(BUILDDIR)/$(PROJ) $(ELF)
+
+prove::
+	gnatprove -P $(GPR) -u src/square_destroyer.ads
 
 flash:: $(BIN)
 	$(STFLASH) write $(BIN) 0x8000000
