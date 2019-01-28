@@ -160,12 +160,13 @@ private
    procedure Blink (G : Grid; WorkListMove : PointSet.Set;
                     Score : Natural) with
       Global => null,
-      Pre    => (Is_Grid_Valid (G));
+      Pre    => (Is_Grid_Valid (G)),
+      Post   => (Is_Grid_Valid (G));
 
    function Is_Unsolvable (G : in out Grid) return Boolean with
-      Global  => null,
-      Pre     => (Is_Grid_Valid (G)),
-      Post    => (G = G'Old);
+      Global => null,
+      Pre    => (Is_Grid_Valid (G)),
+      Post   => (G = G'Old);
 
 ---------- Game loop procedures -----------------------------------------------
 
@@ -182,12 +183,24 @@ private
                           Just_Moved  : in out Boolean;
                           Score       : in out Natural;
                           Solvable    : out Boolean) with
-      Global     => null,
-      Depends    => ((G, Last_Square, Cur_Square, Just_Moved, Score,
-                      Solvable) =>
-                        (G, Cur_Square, Last_Square, Just_Moved, Score)),
-      Pre        => (Is_Grid_Valid (G)),
-      Post       => (Score >= Score'Old);
+      Global  => null,
+      Depends => ((G, Last_Square, Cur_Square, Just_Moved, Score, Solvable) =>
+                     (G, Cur_Square, Last_Square, Just_Moved, Score)),
+      Pre     => (Is_Grid_Valid (G)),
+      Post    => (Is_Grid_Valid (G) and then
+                  Solvable = not Is_Unsolvable (G) and then
+                  Last_Square.P = Last_Square'Old.P and then
+                  Cur_Square.P = Cur_Square'Old.P and then
+                  (if Just_Moved then
+                      Score > Score'Old and then
+                      Last_Square.Valid = False and then
+                      Cur_Square.Valid = False and then
+                      G /= G'Old
+                   else
+                      Score = Score'Old and then
+                      Last_Square.Valid = Last_Square'Old.Valid and then
+                      Cur_Square.Valid = Cur_Square'Old.Valid and then
+                      G = G'Old));
 
    procedure Draw_Grid (G : Grid) with
       Global => null,
