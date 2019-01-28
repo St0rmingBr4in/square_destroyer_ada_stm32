@@ -167,30 +167,30 @@ package body Square_Destroyer is
       end loop;
    end Process_Moves;
 
-   function Is_Unsolvable(G : in out Grid) return Boolean
+   function Is_Unsolvable (G : in out Grid) return Boolean
    is
       Solution : PointSet.Set;
    begin
       for I in G'Range (1) loop
          for J in G'Range (2) loop
-            if I > G'First(1) then
+            if I > G'First (1) then
                Swap (G, (I, J), (I - 1, J));
-               Is_Move_Legal (G, (I,J), Solution);
+               Is_Move_Legal (G, (I, J), Solution);
                Swap (G, (I, J), (I - 1, J));
             end if;
-            if I < G'Last(1) then
+            if I < G'Last (1) then
                Swap (G, (I, J), (I + 1, J));
-               Is_Move_Legal (G, (I,J), Solution);
+               Is_Move_Legal (G, (I, J), Solution);
                Swap (G, (I, J), (I + 1, J));
             end if;
-            if J > G'First(2) then
+            if J > G'First (2) then
                Swap (G, (I, J), (I, J - 1));
-               Is_Move_Legal (G, (I,J), Solution);
+               Is_Move_Legal (G, (I, J), Solution);
                Swap (G, (I, J), (I, J - 1));
             end if;
-            if J < G'Last(2) then
+            if J < G'Last (2) then
                Swap (G, (I, J), (I, J + 1));
-               Is_Move_Legal (G, (I,J), Solution);
+               Is_Move_Legal (G, (I, J), Solution);
                Swap (G, (I, J), (I, J + 1));
             end if;
             if not PointSet.Is_Empty (Solution) then
@@ -205,9 +205,11 @@ package body Square_Destroyer is
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
                           Just_Moved  : in out Boolean;
-                          Score       : in out Natural) is
+                          Score       : in out Natural;
+                          Solvable    : out Boolean) is
       WorkListMove : PointSet.Set;
    begin
+      Solvable := True;
       if not Are_Adjacent (Cur_Square, Last_Square) then
          return;
       end if;
@@ -220,6 +222,7 @@ package body Square_Destroyer is
          Cur_Square.Valid  := False;
          Just_Moved        := True;
          Process_Moves (G, WorkListMove, Score);
+         Solvable := not Is_Unsolvable (G);
       else
          Swap (G, Cur_Square.P, Last_Square.P);
          return;
@@ -332,6 +335,7 @@ package body Square_Destroyer is
       Cur_Square  : Optional_Point := (Valid => False, P => <>);
       Just_Moved  : Boolean        := False;
       Score       : Natural        := 0;
+      Solvable    : Boolean        := True;
    begin
       Init_Board;
       loop
@@ -339,14 +343,15 @@ package body Square_Destroyer is
          Init_Grid (G);
          loop
             Get_Input (G, Last_Square, Cur_Square, Just_Moved);
-            Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score);
+            Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score,
+            Solvable);
             Draw_Grid (G);
 
             --  Draw Score
             LCD_Std_Out.Put (0, 0, Score'Image);
-            if Is_Unsolvable(G) then
-               LCD_Std_Out.Put("GAME OVER");
-               delay Duration(5.0);
+            if not Solvable then
+               LCD_Std_Out.Put ("GAME OVER. Final Score: " & Score'Image);
+               delay Duration (5.0);
                exit;
             end if;
             --  Update screen

@@ -99,9 +99,11 @@ private
                           Last_Square : in out Optional_Point;
                           Cur_Square  : in out Optional_Point;
                           Just_Moved  : in out Boolean;
-                          Score       : in out Natural) with
+                          Score       : in out Natural;
+                          Solvable    : out Boolean) with
       Global     => null,
-      Depends    => ((G, Last_Square, Cur_Square, Just_Moved, Score) =>
+      Depends    => ((G, Last_Square, Cur_Square, Just_Moved, Score,
+                      Solvable) =>
                         (G, Cur_Square, Last_Square, Just_Moved, Score)),
       Pre        => (Is_Grid_Valid (G)),
       Post       => (Score >= Score'Old);
@@ -175,6 +177,8 @@ private
       Depends => ((G, WorkListMove, Score) => (G, WorkListMove, Score)),
       Pre     => (Is_Grid_Valid (G)),
       Post    => (Is_Grid_Valid (G));
+
+   function Is_Unsolvable (G : in out Grid) return Boolean;
 
 -------------------------------------------------------------------------------
 
