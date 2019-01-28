@@ -152,8 +152,10 @@ private
                             Score        : in out Natural) with
       Global  => null,
       Depends => ((G, WorkListMove, Score) => (G, WorkListMove, Score)),
-      Pre     => (Is_Grid_Valid (G)),
-      Post    => (Is_Grid_Valid (G));
+      Pre     => (Is_Grid_Valid (G) and then
+                     not PointSet.Is_Empty (WorkListMove)),
+      Post    => (Is_Grid_Valid (G) and then PointSet.Is_Empty (WorkListMove)
+                     and then Score >= Score'Old + MATCH_3_VALUE);
 
    procedure Blink (G : Grid; WorkListMove : PointSet.Set;
                     Score : Natural) with
