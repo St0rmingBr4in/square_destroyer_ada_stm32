@@ -29,10 +29,14 @@ package body Square_Destroyer is
    function Is_Grid_Valid (G : Grid) return Boolean is
    begin
       for I in G'Range (1) loop
+         pragma Loop_Variant (Increases => I);
+         pragma Loop_Invariant (I'Valid);
          for J in G'Range (2) loop
             if not G (I, J)'Valid then
                return False;
             end if;
+            pragma Loop_Variant (Increases => J);
+            pragma Loop_Invariant (J'Valid and then G (I, J)'Valid);
          end loop;
       end loop;
       return True;
@@ -68,10 +72,15 @@ package body Square_Destroyer is
       RNG.Interrupts.Initialize_RNG;
 
       for I in G'Range (1) loop
+         pragma Loop_Variant (Increases => I);
+         pragma Loop_Invariant (I'Valid);
          for J in G'Range (2) loop
+            pragma Loop_Variant (Increases => J);
+            pragma Loop_Invariant (J'Valid);
             loop
                G (I, J) := Get_Random_Square;
                exit when not Is_Match_3 (G, I, J);
+               pragma Loop_Invariant (Is_Match_3 (G, I, J));
             end loop;
          end loop;
       end loop;
@@ -132,9 +141,12 @@ package body Square_Destroyer is
       Tmp_X : Integer := X;
       Tmp_Y : Integer := Y;
    begin
-      while Tmp_X >= G'First (1) and then Tmp_X <= G'Last (1)
-            and then Tmp_Y >= G'First (2) and then Tmp_Y <= G'Last (2)
+      while Tmp_X in G'First (1) .. G'Last (1)
+            and then Tmp_Y in G'First (2) .. G'Last (2)
             and then G (Tmp_X, Tmp_Y) = S loop
+         pragma Loop_Invariant (Tmp_X in G'First (1) .. G'Last (1) and then
+                                Tmp_Y in G'First (2) .. G'Last (2) and then
+                                G (Tmp_X, Tmp_Y) = S);
          PointSet.Include (Matching_Squares, (Tmp_X, Tmp_Y));
          Tmp_X := Tmp_X + Step_X;
          Tmp_Y := Tmp_Y + Step_Y;
@@ -173,19 +185,26 @@ package body Square_Destroyer is
       Multiplier          : Natural := 1;
    begin
       while not PointSet.Is_Empty (WorkListMove) loop
+         pragma Loop_Variant (Increases => Score,
+                              Increases => Multiplier);
+         pragma Loop_Invariant (not PointSet.Is_Empty (WorkListMove));
          Blink (G, WorkListMove, Score);
          Score := Score + ((MATCH_3_VALUE +
                            (Natural (PointSet.Length (WorkListMove)) - 3)
                               * BONUS_PER_SQUARE) * Multiplier);
          while not PointSet.Is_Empty (WorkListMove) loop
+            pragma Loop_Invariant (not PointSet.Is_Empty (WorkListMove));
             declare
                Element : constant Point :=
                   PointSet.First_Element (WorkListMove);
-                  Tmp_Y : Integer := Element.Y;
+               Tmp_Y : Integer := Element.Y;
             begin
                while Tmp_Y > 0 loop
                   exit when not PointSet.Contains (WorkListMove,
-                  (Element.X, Tmp_Y));
+                                                  (Element.X, Tmp_Y));
+                  pragma Loop_Variant (Decreases => Tmp_Y);
+                  pragma Loop_Invariant (PointSet.Contains
+                                         (WorkListMove, (Element.X, Tmp_Y)));
                   Tmp_Y := Tmp_Y - 1;
                end loop;
                if Tmp_Y = 0 then
@@ -199,6 +218,10 @@ package body Square_Destroyer is
             end;
          end loop;
          while not PointSet.Is_Empty (WorkListCombination) loop
+            pragma Loop_Variant (Decreases =>
+                                    PointSet.Length (WorkListCombination));
+            pragma Loop_Invariant (
+               not PointSet.Is_Empty (WorkListCombination));
             Is_Move_Legal (G, PointSet.First_Element (WorkListCombination),
                            WorkListMove);
             PointSet.Delete_First (WorkListCombination);
@@ -209,14 +232,20 @@ package body Square_Destroyer is
 
    procedure Blink (G : Grid; WorkListMove : PointSet.Set; Score : Natural) is
    begin
-      for i in 1 .. 10 loop
+      for I in 1 .. 10 loop
+         pragma Loop_Variant (Increases => I);
+         pragma Loop_Invariant (I'Valid);
          for S of WorkListMove loop
+            pragma Loop_Invariant ((S.X - G'First (1)) * SQUARE_SIZE in
+                                    0 .. SCREEN_WIDTH - SQUARE_SIZE and then
+                                   (S.Y - G'First (2)) * SQUARE_SIZE in
+                                    0 .. SCREEN_HEIGHT - SQUARE_SIZE);
             declare
                R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
             begin
                Display.Hidden_Buffer (1).Set_Source (HAL.Bitmap.White);
                R.Position := ((S.X - G'First (1)) * SQUARE_SIZE,
-               (S.Y - G'First (2)) * SQUARE_SIZE);
+                              (S.Y - G'First (2)) * SQUARE_SIZE);
                Display.Hidden_Buffer (1).Fill_Rect (R);
             end;
          end loop;
@@ -234,6 +263,8 @@ package body Square_Destroyer is
       Solution : PointSet.Set;
    begin
       for I in G'Range (1) loop
+         pragma Loop_Variant (Increases => I);
+         pragma Loop_Invariant (I'Valid);
          for J in G'Range (2) loop
             if I > G'First (1) then
                Swap (G, (I, J), (I - 1, J));
@@ -258,6 +289,9 @@ package body Square_Destroyer is
             if not PointSet.Is_Empty (Solution) then
                return False;
             end if;
+            pragma Loop_Variant (Increases => J);
+            pragma Loop_Invariant (J'Valid and then
+                                   PointSet.Is_Empty (Solution));
          end loop;
       end loop;
       return True;
@@ -318,7 +352,15 @@ package body Square_Destroyer is
       R : Rect  := ((0, 0), SQUARE_SURFACE_SIZE, SQUARE_SURFACE_SIZE);
    begin
       for I in G'Range (1) loop
+         pragma Loop_Variant (Increases => I);
+         pragma Loop_Invariant (I'Valid);
          for J in G'Range (2) loop
+            pragma Loop_Variant (Increases => J);
+            pragma Loop_Invariant (J'Valid and then
+                                    ((I - G'First (1)) * SQUARE_SIZE in
+                                    0 .. SCREEN_WIDTH - SQUARE_SIZE) and then
+                                    ((J - G'First (1)) * SQUARE_SIZE in
+                                    0 .. SCREEN_HEIGHT - SQUARE_SIZE));
             Display.Hidden_Buffer (1).Set_Source (CM (G (I, J)));
             R.Position := ((I - G'First (1)) * SQUARE_SIZE,
                            (J - G'First (2)) * SQUARE_SIZE);
@@ -365,6 +407,7 @@ package body Square_Destroyer is
                delay Duration (5.0);
                exit;
             end if;
+            pragma Loop_Invariant (not Is_Unsolvable (G));
             --  Update screen
             Display.Update_Layer (1, Copy_Back => True);
          end loop;

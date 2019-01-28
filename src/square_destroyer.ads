@@ -96,7 +96,8 @@ private
 ---------- Init procedures ----------------------------------------------------
 
    procedure Init_Grid (G : out Grid) with
-      Post    => (Is_Grid_Valid (G));
+      Global => null,
+      Post   => (Is_Grid_Valid (G));
 
    procedure Init_Board with
       Global => null;
@@ -105,23 +106,23 @@ private
 
    function Are_Adjacent (A : Optional_Point; B : Optional_Point)
    return Boolean with
-      Global     => null,
-      Depends    => (Are_Adjacent'Result => (A, B)),
-      Pre        => ((not A.Valid or else Is_In_Grid (A.P)) and then
-                     (not B.Valid or else Is_In_Grid (B.P))),
-      Post       => (if not A.Valid or else not B.Valid then
-                        Are_Adjacent'Result = False
-                     else
-                        Are_Adjacent'Result =
-                           (((abs (A.P.X - B.P.X)) + (abs (A.P.Y - B.P.Y)))
-                              = 1));
+      Global  => null,
+      Depends => (Are_Adjacent'Result => (A, B)),
+      Pre     => ((not A.Valid or else Is_In_Grid (A.P)) and then
+                  (not B.Valid or else Is_In_Grid (B.P))),
+      Post    => (if not A.Valid or else not B.Valid then
+                     Are_Adjacent'Result = False
+                  else
+                     Are_Adjacent'Result =
+                        (((abs (A.P.X - B.P.X)) + (abs (A.P.Y - B.P.Y)))
+                           = 1));
 
    procedure Swap (G : in out Grid; A : Point; B : Point) with
-      Global     => null,
-      Depends    => (G =>+ (A, B)),
-      Pre        => (Is_In_Grid (A) and then Is_In_Grid (B)),
-      Post       => (G (A.X, A.Y) = G'Old (B.X, B.Y) and then
-                     G (B.X, B.Y) = G'Old (A.X, A.Y));
+      Global  => null,
+      Depends => (G =>+ (A, B)),
+      Pre     => (Is_In_Grid (A) and then Is_In_Grid (B)),
+      Post    => (G (A.X, A.Y) = G'Old (B.X, B.Y) and then
+                  G (B.X, B.Y) = G'Old (A.X, A.Y));
 
    procedure Get_Matching_Neighbourgs (G : Grid;
                                        X : Integer; Step_X : Integer;
@@ -129,23 +130,23 @@ private
                                        S : Square;
                                        Matching_Squares : in out PointSet.Set)
    with
-      Global     => null,
-      Depends    => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
-      Pre        => (Is_Grid_Valid (G) and then
-                     X in 0 .. GRID_WIDTH  + 1 and then
-                     Y in 0 .. GRID_HEIGHT + 1 and then
-                     (Step_X /= 0 or else Step_Y /= 0)),
-      Post       => ((PointSet.Length (Matching_Squares) in
-                        PointSet.Length (Matching_Squares'Old) .. (
-                           (GRID_WIDTH / Count_Type'Max (
-                                                   Count_Type (abs Step_X),
-                                                   Count_Type (abs Step_Y)))
-                           - 1 + PointSet.Length (Matching_Squares'Old)))
-                     and then
-                     (for all P of Matching_Squares =>
-                        ((G (P.X, P.Y) = S) and then
-                           (if not PointSet.Contains(Matching_Squares'Old, P)
-                              then P.X = X or else P.Y = Y))));
+      Global  => null,
+      Depends => (Matching_Squares =>+ (G, X, Step_X, Y, Step_Y, S)),
+      Pre     => (Is_Grid_Valid (G) and then
+                  X in 0 .. GRID_WIDTH  + 1 and then
+                  Y in 0 .. GRID_HEIGHT + 1 and then
+                  (Step_X /= 0 or else Step_Y /= 0)),
+      Post    => ((PointSet.Length (Matching_Squares) in
+                     PointSet.Length (Matching_Squares'Old) .. (
+                        (GRID_WIDTH / Count_Type'Max (
+                                                Count_Type (abs Step_X),
+                                                Count_Type (abs Step_Y)))
+                        - 1 + PointSet.Length (Matching_Squares'Old)))
+                  and then
+                  (for all P of Matching_Squares =>
+                     ((G (P.X, P.Y) = S) and then
+                        (if not PointSet.Contains (Matching_Squares'Old, P)
+                           then P.X = X or else P.Y = Y))));
 
    procedure Is_Move_Legal (G : Grid; P : Point;
                             Combinations : in out PointSet.Set) with
@@ -181,6 +182,7 @@ private
    procedure Get_Input (Last_Square : out Optional_Point;
                         Cur_Square  : in out Optional_Point;
                         Just_Moved  : in out Boolean) with
+      Global  => null,
       Depends => (Last_Square => (Just_Moved, Cur_Square),
                   Cur_Square  => (Just_Moved),
                   Just_Moved  => null);
@@ -199,7 +201,8 @@ private
                   Solvable = not Is_Unsolvable (G) and then
                   Last_Square.P = Last_Square'Old.P and then
                   Cur_Square.P = Cur_Square'Old.P and then
-                  (if Just_Moved then
+                  (if Are_Adjacent (Cur_Square'Old, Last_Square'Old) and then
+                      Just_Moved then
                       Score > Score'Old and then
                       Last_Square.Valid = False and then
                       Cur_Square.Valid = False and then
