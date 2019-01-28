@@ -141,8 +141,11 @@ private
 
    procedure Is_Move_Legal (G : Grid; P : Point;
                             Combinations : in out PointSet.Set) with
-      Global => null,
-      Pre     => (Is_Grid_Valid (G) and then Is_In_Grid (P));
+      Global  => null,
+      Depends => (Combinations =>+ (G, P)),
+      Pre     => (Is_Grid_Valid (G) and then Is_In_Grid (P)),
+      Post    => (PointSet.Length (Combinations) >= PointSet.Length
+                   (Combinations'Old));
 
    procedure Process_Moves (G            : in out Grid;
                             WorkListMove : in out PointSet.Set;
