@@ -13,6 +13,17 @@ with STM32.User_Button;     use STM32;
 
 package body Square_Destroyer is
 
+---------- Comparison function for PointSet -----------------------------------
+
+   function Sort_By_Height (A : Point; B : Point) return Boolean is
+   begin
+      if A.Y = B.Y then
+         return A.X > B.X;
+      else
+         return A.Y > B.Y;
+      end if;
+   end Sort_By_Height;
+
 ---------- Helper functions for contracts -------------------------------------
 
    function Is_Grid_Valid (G : Grid) return Boolean is
@@ -82,8 +93,7 @@ package body Square_Destroyer is
 
 ---------- Game loop procedures and functions ---------------------------------
 
-   procedure Get_Input (G           : Grid;
-                        Last_Square : out Optional_Point;
+   procedure Get_Input (Last_Square : out Optional_Point;
                         Cur_Square  : in out Optional_Point;
                         Just_Moved  : in out Boolean) is
       State : constant HAL.Touch_Panel.TP_State :=
@@ -97,8 +107,8 @@ package body Square_Destroyer is
                Last_Square := Cur_Square;
                Cur_Square :=
                (Valid => True,
-                P => ((State (State'First).X / SQUARE_SIZE) + G'First (1),
-                      (State (State'First).Y / SQUARE_SIZE) + G'First (2)));
+                P => ((State (State'First).X / SQUARE_SIZE) + Grid'First (1),
+                      (State (State'First).Y / SQUARE_SIZE) + Grid'First (2)));
             end if;
          when others => null;
       end case;
@@ -280,15 +290,6 @@ package body Square_Destroyer is
       end loop;
    end Get_Matching_Neighbourgs;
 
-   function Sort_By_Height (A : Point; B : Point) return Boolean is
-   begin
-      if A.Y = B.Y then
-         return A.X > B.X;
-      else
-         return A.Y > B.Y;
-      end if;
-   end Sort_By_Height;
-
    function Is_Match_3 (G : Grid; X : Natural; Y : Natural) return Boolean is
       S    : constant Square := G (X, Y);
       Line : PointSet.Set;
@@ -348,7 +349,7 @@ package body Square_Destroyer is
          Score := 0;
          Init_Grid (G);
          loop
-            Get_Input (G, Last_Square, Cur_Square, Just_Moved);
+            Get_Input (Last_Square, Cur_Square, Just_Moved);
             Update_Grid (G, Last_Square, Cur_Square, Just_Moved, Score,
                          Solvable);
             Draw_Grid (G);
