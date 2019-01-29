@@ -44,17 +44,46 @@ Finally we can generate our random \sqs like this:
 
 
 \lstinputlisting[numbers=left,firstline=52, lastline=56]{../src/square_destroyer.adb}
+
 \newpage
 
-\subsubsection{Implementation of B}
+\subsubsection{Implementation of Is$\_$Move$\_$Legal}
+
+This procedure verifies that a move is legal. (i.e.\  the move generates a combination of at least 3 \sqs)
 
 \paragraph{Code}
 \noindent
 \begin{centering}
+\lstinputlisting[numbers=left,firstline=156, lastline=179]{../src/square_destroyer.adb}
+\end{centering}
+\newpage
 
+The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$Neighbourgs which helps in getting all the adjacent \sqs of the same color.
 
-\begin{lstlisting}
-test
-\end{lstlisting}
+\paragraph{Code}
+\noindent
+\begin{centering}
+\lstinputlisting[numbers=left,firstline=135, lastline=154]{../src/square_destroyer.adb}
+\end{centering}
+\newpage
+
+\subsubsection{Implementation of Draw$\_$Grid}
+
+This procedure draws the \grid onto the screen of the \stmdb.
+
+\paragraph{Code}
+\noindent
+\begin{centering}
+\lstinputlisting[numbers=left,firstline=351, lastline=370]{../src/square_destroyer.adb}
+\end{centering}
+\newpage
+
+\subsubsection{Implementation of Run}
+
+This procedure is the main game loop.
+
+\paragraph{Code}
+\begin{centering}
+\lstinputlisting[numbers=left,firstline=374, lastline=415]{../src/square_destroyer.adb}
 \end{centering}
 \newpage
