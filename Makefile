@@ -21,7 +21,7 @@ GPR = square_destroyer.gpr
 all:: $(BIN)
 
 report::
-	$(MAKE) -C report
+	$(MAKE) -C report all_compressed
 
 $(HEX): $(ELF)
 	$(OBJCOPY) -O ihex $(PROJ).elf $(PROJ).hex

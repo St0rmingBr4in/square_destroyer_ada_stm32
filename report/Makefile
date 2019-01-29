@@ -4,9 +4,9 @@ VIEWER = zathura
 
 TEX_PATH = tex
 ADA_TEX_FILES = conclusion_ada.tex glossary.tex work.tex docs.tex introduction_ada.tex \
-						cover.tex appendices.tex common_headers.tex
+						cover.tex appendices.tex common_headers.tex introduction_common.tex
 DO178_TEX_FILES = conclusion_do178.tex glossary.tex work.tex docs.tex introduction_do178.tex \
-						cover.tex appendices.tex specs.tex common_headers.tex
+						cover.tex appendices.tex specs.tex common_headers.tex introduction_common.tex
 
 COMPRESSED_SUFIX=-compress
 
