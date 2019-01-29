@@ -2,11 +2,13 @@
 
 \subsection{Implementation choices}
 
-\subsection{How to use the projet}
+\subsection{How to use the project}
 
 To be able to use the project you have to have :
 \begin{itemize}
-    \item test
+    \item arm-none-eabi-binutils
+    \item gprbuild
+    \item The GNAT 2018-arm-elf toolchain
 \end{itemize}
 
 \begin{noindent}
@@ -16,15 +18,32 @@ The project can be downloaded at this address : \\
 
 \newpage
 
-\subsubsection{Implementation of A}
+\subsubsection{Implementation of a random \sq generator}
+
+In order to generate \sqs we chose to use the STM32 Library.
+Indeed, the library helps generate random number by utilizing the RTC on the \stmdb.
 
 \paragraph{Code}
+
 \noindent
-\begin{centering}
+First we include STM32.RNG.Interrupts.
+\begin{lstlisting}
+   with STM32.RNG.Interrupts; use STM32;
+\end{lstlisting}
 
 
-\lstinputlisting[firstline=48, lastline=55]{../src/square_destroyer.adb}
-\end{centering}
+\noindent
+Then we initialize the random number generator using this statement:
+\begin{lstlisting}
+   RNG.Interrupts.Initialize_RNG;
+\end{lstlisting}
+
+
+\noindent
+Finally we can generate our random \sqs like this:
+
+
+\lstinputlisting[numbers=left,firstline=52, lastline=56]{../src/square_destroyer.adb}
 \newpage
 
 \subsubsection{Implementation of B}
