@@ -6,18 +6,45 @@ FIXME
 
 \subsection{How to use the project}
 
-To be able to use the project you have to have :
-\begin{itemize}
-    \item arm-none-eabi-binutils
-    \item gprbuild
-    \item The GNAT 2018-arm-elf toolchain
-\end{itemize}
-
 \begin{noindent}
 The project can be downloaded at this address : \\
 \url{https://github.com/St0rmingBr4in/ada_stm32}
 \end{noindent}
 
+\subsubsection{Requirements}
+
+The project runs on an ARM card: the `STM32F429DICSO`. In order to be able to
+build and run this project, here is what you will need:
+
+\begin{itemize}
+	\item An STM32F429DICSO ARM board
+	\item A linux distribution. We used ArchLinux
+    \item A gnat toolchain to cross-compile Ada into an ARM binary
+		(\url{https://www.adacore.com/download})
+	\item The \textit{gprbuild} and \textit{gprconf} linux tools
+	\item The \textit{st-flash} linux utility, to flash the ARM binary created on the
+		  device
+\end{itemize}
+
+\subsubsection{Building and running the project}
+
+Once you have made sure that your setup fulfills the requirements, you can
+move on and try to build and run the project. There are several steps to
+building this project, but we wrapped it all up into a Makefile so that simply
+invoking the `make` command will perform all the work.
+
+The first thing to do is to build the source files into an ARM ELF file, using
+\textit{gprbuild}:\\
+gprbuild -XBUILD=\{Debug/Release\} square\_destroyer.gpr
+The \textit{square\_destroyer.gpr} file is a configuration file that specifies
+how the toolchain is going to run and what tools and target platform it will
+use to create the ELF file, as well as where to fetch the Ada source files.
+
+The next step is to copy only the part of the binary we are interested in into
+a new file. This new file actually be the code that we flash onto the board,
+on which the CPU will jump after the system boots. To do so, we use the
+\textit{objcopy} utility from the cross-compilation toolchain:\\
+arm-none-eabi-objcopy -O binary main.elf main.bin
 \newpage
 
 \subsection{Implementation of the game}
