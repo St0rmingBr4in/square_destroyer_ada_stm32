@@ -48,6 +48,65 @@ st-flash write main.bin 0x8000000. Finally, the game can be played using the
 touch screen.
 \newpage
 
+\subsection{Contracts of the game}
+
+\subsubsection{Contracts on Run}
+\lstinputlisting[numbers=left,firstline=8, lastline=9]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Sort\_By\_Height}
+\lstinputlisting[numbers=left,firstline=30, lastline=36]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Is\_Grid\_Valid}
+\lstinputlisting[numbers=left,firstline=61, lastline=67]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Is\_In\_Grid}
+\lstinputlisting[numbers=left,firstline=69, lastline=73]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Get\_Random\_Square}
+\lstinputlisting[numbers=left,firstline=77, lastline=80]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Is\_Match\_3}
+\lstinputlisting[numbers=left,firstline=84, lastline=94]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Init\_Grid}
+\lstinputlisting[numbers=left,firstline=98, lastline=100]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Are\_Adjacent}
+\lstinputlisting[numbers=left,firstline=107, lastline=118]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Swap}
+\lstinputlisting[numbers=left,firstline=120, lastline=125]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Get\_Matching\_Neighbours}
+\lstinputlisting[numbers=left,firstline=127, lastline=149]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Is\_Move\_Legal}
+\lstinputlisting[numbers=left,firstline=151, lastline=157]{../src/square_destroyer.ads}
+
+\newpage
+
+\subsubsection{Contracts on Process\_Moves}
+\lstinputlisting[numbers=left,firstline=159, lastline=167]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Blink}
+\lstinputlisting[numbers=left,firstline=169, lastline=173]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Is\_Unsolvable}
+\lstinputlisting[numbers=left,firstline=175, lastline=178]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Get\_Input}
+\lstinputlisting[numbers=left,firstline=182, lastline=188]{../src/square_destroyer.ads}
+
+\newpage
+
+\subsubsection{Contracts on Update\_Grid}
+\lstinputlisting[numbers=left,firstline=190, lastline=214]{../src/square_destroyer.ads}
+
+\subsubsection{Contracts on Draw\_Grid}
+\lstinputlisting[numbers=left,firstline=216, lastline=219]{../src/square_destroyer.ads}
+
+\newpage
+
 \subsection{Implementation of the game}
 
 \subsubsection{Implementation of Sort\_By\_Height}
@@ -62,6 +121,8 @@ position, or with the highest X position if A.Y = B.Y.
 
 \subsubsection{Implementation of Is\_In\_Grid}
 \lstinputlisting[numbers=left,firstline=45, lastline=48]{../src/square_destroyer.adb}
+
+\newpage
 
 \subsubsection{Implementation of a random \sq generator}
 
@@ -91,8 +152,12 @@ Finally we can generate our random \sqs like this:
 \subsubsection{Implementation of Is\_Match\_3}
 \lstinputlisting[numbers=left,firstline=60, lastline=66]{../src/square_destroyer.adb}
 
+\newpage
+
 \subsubsection{Implementation of Init\_Grid}
 \lstinputlisting[numbers=left,firstline=70, lastline=111]{../src/square_destroyer.adb}
+
+\newpage
 
 \subsubsection{Implementation of Are\_Adjacent}
 \lstinputlisting[numbers=left,firstline=115, lastline=133]{../src/square_destroyer.adb}
@@ -121,11 +186,17 @@ The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$N
 \subsubsection{Implementation of Process\_Moves}
 \lstinputlisting[numbers=left,firstline=181, lastline=231]{../src/square_destroyer.adb}
 
+\newpage
+
 \subsubsection{Implementation of Blink}
 \lstinputlisting[numbers=left,firstline=233, lastline=259]{../src/square_destroyer.adb}
 
+\newpage
+
 \subsubsection{Implementation of Is\_Unsolvable}
 \lstinputlisting[numbers=left,firstline=261, lastline=298]{../src/square_destroyer.adb}
+
+\newpage
 
 \subsubsection{Implementation of Get\_Input}
 \lstinputlisting[numbers=left,firstline=302, lastline=321]{../src/square_destroyer.adb}
@@ -143,6 +214,8 @@ This procedure draws the \grid onto the screen of the \stmdb.
 \lstinputlisting[numbers=left,firstline=351, lastline=370]{../src/square_destroyer.adb}
 \end{centering}
 
+\newpage
+
 \subsubsection{Implementation of Run}
 
 This procedure is the main game loop.
@@ -151,4 +224,8 @@ This procedure is the main game loop.
 \begin{centering}
 \lstinputlisting[numbers=left,firstline=374, lastline=415]{../src/square_destroyer.adb}
 \end{centering}
+
+\subsubsection{Implementation of Main}
+\lstinputlisting[numbers=left,firstline=5, lastline=8]{../src/main.adb}
+
 \newpage
