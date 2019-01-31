@@ -50,6 +50,19 @@ touch screen.
 
 \subsection{Implementation of the game}
 
+\subsubsection{Implementation of Sort\_By\_Height}
+
+\noindent
+This function take 2 points in parameter and return the one with the highest Y
+position, or with the highest X position if A.Y = B.Y.
+\lstinputlisting[numbers=left,firstline=18, lastline=25]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Is\_Grid\_Valid}
+\lstinputlisting[numbers=left,firstline=29, lastline=43]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Is\_In\_Grid}
+\lstinputlisting[numbers=left,firstline=45, lastline=48]{../src/square_destroyer.adb}
+
 \subsubsection{Implementation of a random \sq generator}
 
 In order to generate \sqs we chose to use the STM32 Library.
@@ -73,11 +86,19 @@ Then we initialize the random number generator using this statement:
 
 \noindent
 Finally we can generate our random \sqs like this:
-
-
 \lstinputlisting[numbers=left,firstline=52, lastline=56]{../src/square_destroyer.adb}
 
-\newpage
+\subsubsection{Implementation of Is\_Match\_3}
+\lstinputlisting[numbers=left,firstline=60, lastline=66]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Init\_Grid}
+\lstinputlisting[numbers=left,firstline=70, lastline=111]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Are\_Adjacent}
+\lstinputlisting[numbers=left,firstline=115, lastline=133]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Get\_Matching\_Neighbours}
+\lstinputlisting[numbers=left,firstline=135, lastline=154]{../src/square_destroyer.adb}
 
 \subsubsection{Implementation of Is$\_$Move$\_$Legal}
 
@@ -88,7 +109,6 @@ This procedure verifies that a move is legal. (i.e.\  the move generates a combi
 \begin{centering}
 \lstinputlisting[numbers=left,firstline=156, lastline=179]{../src/square_destroyer.adb}
 \end{centering}
-\newpage
 
 The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$Neighbours which helps in getting all the adjacent \sqs of the same color.
 
@@ -97,7 +117,21 @@ The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$N
 \begin{centering}
 \lstinputlisting[numbers=left,firstline=135, lastline=154]{../src/square_destroyer.adb}
 \end{centering}
-\newpage
+
+\subsubsection{Implementation of Process\_Moves}
+\lstinputlisting[numbers=left,firstline=181, lastline=231]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Blink}
+\lstinputlisting[numbers=left,firstline=233, lastline=259]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Is\_Unsolvable}
+\lstinputlisting[numbers=left,firstline=261, lastline=298]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Get\_Input}
+\lstinputlisting[numbers=left,firstline=302, lastline=321]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Update\_Grid}
+\lstinputlisting[numbers=left,firstline=323, lastline=349]{../src/square_destroyer.adb}
 
 \subsubsection{Implementation of Draw$\_$Grid}
 
@@ -108,7 +142,6 @@ This procedure draws the \grid onto the screen of the \stmdb.
 \begin{centering}
 \lstinputlisting[numbers=left,firstline=351, lastline=370]{../src/square_destroyer.adb}
 \end{centering}
-\newpage
 
 \subsubsection{Implementation of Run}
 
