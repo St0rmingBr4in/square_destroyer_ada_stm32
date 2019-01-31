@@ -1,130 +1,80 @@
-\section{Work performed}
+\section{Contracts of the game}
 
-\subsection{How to use the project}
-
-\begin{noindent}
-The project can be downloaded at this address : \\
-\url{https://github.com/St0rmingBr4in/square_destroyer_ada_stm32}
-\end{noindent}
-
-\subsubsection{Requirements}
-
-The project runs on an ARM card: the `\stmdb'. In order to be able to
-build and run this project, here is what you will need:
-
-\begin{itemize}
-	\item An \stmdb
-	\item A linux distribution. We used ArchLinux
-    \item A gnat toolchain to cross-compile Ada into an ARM binary
-		(\url{https://www.adacore.com/download})
-	\item The \textit{gprbuild} and \textit{gprconf} linux tools
-	\item The \textit{st-flash} linux utility, to flash the ARM binary created on the
-		  device
-\end{itemize}
-
-\subsubsection{Building and running the project}
-
-Once you have made sure that your setup fulfills the requirements, you can
-move on and try to build and run the project. There are several steps to
-building this project, but we wrapped it all up into a Makefile so that simply
-invoking the `make` command will perform all the work.
-
-The first thing to do is to build the source files into an ARM ELF file, using
-\textit{gprbuild}:\\
-gprbuild -XBUILD=\{Debug/Release\} square\_destroyer.gpr
-The \textit{square\_destroyer.gpr} file is a configuration file that specifies
-how the toolchain is going to run and what tools and target platform it will
-use to create the ELF file, as well as where to fetch the Ada source files.
-
-The next step is to copy only the part of the binary we are interested in into
-a new file. This new file actually be the code that we flash onto the board,
-on which the CPU will jump after the system boots. To do so, we use the
-\textit{objcopy} utility from the cross-compilation toolchain:\\
-arm-none-eabi-objcopy -O binary main.elf main.bin
-
-Finally, once the final object file that is to be run on the board has been
-generated, the last step is to flash it on the board thanks to \textit{st-flash}:\\
-st-flash write main.bin 0x8000000. Finally, the game can be played using the
-touch screen.
-\newpage
-
-\subsection{Contracts of the game}
-
-\subsubsection{Contracts on Run}
+\subsection{Contracts on Run}
 \lstinputlisting[numbers=left,firstline=8, lastline=9]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Sort\_By\_Height}
+\subsection{Contracts on Sort\_By\_Height}
 \lstinputlisting[numbers=left,firstline=30, lastline=36]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Is\_Grid\_Valid}
+\subsection{Contracts on Is\_Grid\_Valid}
 \lstinputlisting[numbers=left,firstline=61, lastline=67]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Is\_In\_Grid}
+\subsection{Contracts on Is\_In\_Grid}
 \lstinputlisting[numbers=left,firstline=69, lastline=73]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Get\_Random\_Square}
+\subsection{Contracts on Get\_Random\_Square}
 \lstinputlisting[numbers=left,firstline=77, lastline=80]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Is\_Match\_3}
+\subsection{Contracts on Is\_Match\_3}
 \lstinputlisting[numbers=left,firstline=84, lastline=94]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Init\_Grid}
+\subsection{Contracts on Init\_Grid}
 \lstinputlisting[numbers=left,firstline=98, lastline=100]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Are\_Adjacent}
+\subsection{Contracts on Are\_Adjacent}
 \lstinputlisting[numbers=left,firstline=107, lastline=118]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Swap}
+\subsection{Contracts on Swap}
 \lstinputlisting[numbers=left,firstline=120, lastline=125]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Get\_Matching\_Neighbours}
+\subsection{Contracts on Get\_Matching\_Neighbours}
 \lstinputlisting[numbers=left,firstline=127, lastline=149]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Is\_Move\_Legal}
+\subsection{Contracts on Is\_Move\_Legal}
 \lstinputlisting[numbers=left,firstline=151, lastline=157]{../src/square_destroyer.ads}
 
 \newpage
 
-\subsubsection{Contracts on Process\_Moves}
+\subsection{Contracts on Process\_Moves}
 \lstinputlisting[numbers=left,firstline=159, lastline=167]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Blink}
+\subsection{Contracts on Blink}
 \lstinputlisting[numbers=left,firstline=169, lastline=173]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Is\_Unsolvable}
+\subsection{Contracts on Is\_Unsolvable}
 \lstinputlisting[numbers=left,firstline=175, lastline=178]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Get\_Input}
+\subsection{Contracts on Get\_Input}
 \lstinputlisting[numbers=left,firstline=182, lastline=188]{../src/square_destroyer.ads}
 
 \newpage
 
-\subsubsection{Contracts on Update\_Grid}
+\subsection{Contracts on Update\_Grid}
 \lstinputlisting[numbers=left,firstline=190, lastline=214]{../src/square_destroyer.ads}
 
-\subsubsection{Contracts on Draw\_Grid}
+\subsection{Contracts on Draw\_Grid}
 \lstinputlisting[numbers=left,firstline=216, lastline=219]{../src/square_destroyer.ads}
 
 \newpage
 
-\subsection{Implementation of the game}
+\section{Implementation of the game}
 
-\subsubsection{Implementation of Sort\_By\_Height}
+\subsection{Implementation of Sort\_By\_Height}
 
 \noindent
 This function take 2 points in parameter and return the one with the highest Y
 position, or with the highest X position if A.Y = B.Y.
 \lstinputlisting[numbers=left,firstline=18, lastline=25]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Is\_Grid\_Valid}
+\subsection{Implementation of Is\_Grid\_Valid}
 \lstinputlisting[numbers=left,firstline=29, lastline=43]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Is\_In\_Grid}
+\subsection{Implementation of Is\_In\_Grid}
 \lstinputlisting[numbers=left,firstline=45, lastline=48]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of a random \sq generator}
+\subsection{Implementation of a random \sq generator}
 
 In order to generate \sqs we chose to use the STM32 Library.
 Indeed, the library helps generate random number by utilizing the RTC on the \stmdb.
@@ -149,63 +99,63 @@ Then we initialize the random number generator using this statement:
 Finally we can generate our random \sqs like this:
 \lstinputlisting[numbers=left,firstline=52, lastline=56]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Is\_Match\_3}
+\subsection{Implementation of Is\_Match\_3}
 \lstinputlisting[numbers=left,firstline=60, lastline=66]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Init\_Grid}
+\subsection{Implementation of Init\_Grid}
 \lstinputlisting[numbers=left,firstline=70, lastline=87]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Init\_Board}
+\subsection{Implementation of Init\_Board}
 \lstinputlisting[numbers=left,firstline=89, lastline=111]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Are\_Adjacent}
+\subsection{Implementation of Are\_Adjacent}
 \lstinputlisting[numbers=left,firstline=115, lastline=126]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Swap}
+\subsection{Implementation of Swap}
 \lstinputlisting[numbers=left,firstline=128, lastline=133]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Get\_Matching\_Neighbours}
+\subsection{Implementation of Get\_Matching\_Neighbours}
 \lstinputlisting[numbers=left,firstline=135, lastline=154]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Is\_Move\_Legal}
+\subsection{Implementation of Is\_Move\_Legal}
 \lstinputlisting[numbers=left,firstline=156, lastline=179]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Process\_Moves}
+\subsection{Implementation of Process\_Moves}
 \lstinputlisting[numbers=left,firstline=181, lastline=231]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Blink}
+\subsection{Implementation of Blink}
 \lstinputlisting[numbers=left,firstline=233, lastline=259]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Is\_Unsolvable}
+\subsection{Implementation of Is\_Unsolvable}
 \lstinputlisting[numbers=left,firstline=261, lastline=298]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Get\_Input}
+\subsection{Implementation of Get\_Input}
 \lstinputlisting[numbers=left,firstline=302, lastline=321]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Update\_Grid}
+\subsection{Implementation of Update\_Grid}
 \lstinputlisting[numbers=left,firstline=323, lastline=349]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Draw\_Grid}
+\subsection{Implementation of Draw\_Grid}
 \lstinputlisting[numbers=left,firstline=351, lastline=370]{../src/square_destroyer.adb}
 
 \newpage
 
-\subsubsection{Implementation of Run}
+\subsection{Implementation of Run}
 \lstinputlisting[numbers=left,firstline=374, lastline=415]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Main}
+\subsection{Implementation of Main}
 \lstinputlisting[numbers=left,firstline=5, lastline=8]{../src/main.adb}
 
 \newpage
