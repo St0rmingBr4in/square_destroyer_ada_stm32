@@ -155,33 +155,26 @@ Finally we can generate our random \sqs like this:
 \newpage
 
 \subsubsection{Implementation of Init\_Grid}
-\lstinputlisting[numbers=left,firstline=70, lastline=111]{../src/square_destroyer.adb}
+\lstinputlisting[numbers=left,firstline=70, lastline=87]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Init\_Board}
+\lstinputlisting[numbers=left,firstline=89, lastline=111]{../src/square_destroyer.adb}
 
 \newpage
 
 \subsubsection{Implementation of Are\_Adjacent}
-\lstinputlisting[numbers=left,firstline=115, lastline=133]{../src/square_destroyer.adb}
+\lstinputlisting[numbers=left,firstline=115, lastline=126]{../src/square_destroyer.adb}
+
+\subsubsection{Implementation of Swap}
+\lstinputlisting[numbers=left,firstline=128, lastline=133]{../src/square_destroyer.adb}
 
 \subsubsection{Implementation of Get\_Matching\_Neighbours}
 \lstinputlisting[numbers=left,firstline=135, lastline=154]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Is$\_$Move$\_$Legal}
+\newpage
 
-This procedure verifies that a move is legal. (i.e.\  the move generates a combination of at least 3 \sqs)
-
-\paragraph{Code}
-\noindent
-\begin{centering}
+\subsubsection{Implementation of Is\_Move\_Legal}
 \lstinputlisting[numbers=left,firstline=156, lastline=179]{../src/square_destroyer.adb}
-\end{centering}
-
-The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$Neighbours which helps in getting all the adjacent \sqs of the same color.
-
-\paragraph{Code}
-\noindent
-\begin{centering}
-\lstinputlisting[numbers=left,firstline=135, lastline=154]{../src/square_destroyer.adb}
-\end{centering}
 
 \subsubsection{Implementation of Process\_Moves}
 \lstinputlisting[numbers=left,firstline=181, lastline=231]{../src/square_destroyer.adb}
@@ -204,26 +197,13 @@ The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$N
 \subsubsection{Implementation of Update\_Grid}
 \lstinputlisting[numbers=left,firstline=323, lastline=349]{../src/square_destroyer.adb}
 
-\subsubsection{Implementation of Draw$\_$Grid}
-
-This procedure draws the \grid onto the screen of the \stmdb.
-
-\paragraph{Code}
-\noindent
-\begin{centering}
+\subsubsection{Implementation of Draw\_Grid}
 \lstinputlisting[numbers=left,firstline=351, lastline=370]{../src/square_destroyer.adb}
-\end{centering}
 
 \newpage
 
 \subsubsection{Implementation of Run}
-
-This procedure is the main game loop.
-
-\paragraph{Code}
-\begin{centering}
 \lstinputlisting[numbers=left,firstline=374, lastline=415]{../src/square_destroyer.adb}
-\end{centering}
 
 \subsubsection{Implementation of Main}
 \lstinputlisting[numbers=left,firstline=5, lastline=8]{../src/main.adb}
