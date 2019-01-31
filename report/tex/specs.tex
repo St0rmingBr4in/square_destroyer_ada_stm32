@@ -40,24 +40,45 @@ Cyan    & \#00FFFF \\
 
 \begin{itemize}
 \item The score will be displayed at the top left of the screen.
-\item A combination of 3 alligned \sqs will give \threepts \pts.
+\item A combination of 3 aligned \sqs will give \threepts \pts.
 \item Each \sq inside a combination will give \sqpts additional \pts.
 \end{itemize}
 
-\subsection{Software Architechture}
-
-
-
 \subsection{Traceability}
-
-
 
 \subsection{Software Architecture}
 
 \subsection{HLR}
 
+\subsubsection{random \sq generator}
+
+We need a way to generate random \sqs.
+
+\subsubsection{Verification whether a move is legal or not}
+
+We need a way to verify the validity of a move performed by the player.
+
 \subsection{LLR}
 
+\subsubsection{random \sq generator}
+
+\lstinputlisting[numbers=left,firstline=77, lastline=80]{../src/square_destroyer.ads}
+
+\subsubsection{Verification whether a move is legal or not}
+
+The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$Neighbours which helps in getting all the adjacent \sqs of the same color.
+
+\lstinputlisting[numbers=left,firstline=151, lastline=157]{../src/square_destroyer.ads}
+
+\subsubsection{Helper function: Get$\_$Matching$\_$Neighbours}
+
+\lstinputlisting[numbers=left,firstline=127, lastline=149]{../src/square_destroyer.ads}
+
 \subsection{Tests}
+
+\subsubsection{``Black box'' testing}
+Tests were done by flashing the program on multiple boards and testing extensively.
+\subsubsection{``White box'' testing}
+No unit test were performed even though it would have been a good idea.
 
 \newpage
