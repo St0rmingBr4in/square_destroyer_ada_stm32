@@ -45,6 +45,11 @@ a new file. This new file actually be the code that we flash onto the board,
 on which the CPU will jump after the system boots. To do so, we use the
 \textit{objcopy} utility from the cross-compilation toolchain:\\
 arm-none-eabi-objcopy -O binary main.elf main.bin
+
+Finally, once the final object file that is to be run on the board has been
+generated, the last step is to flash it on the board thanks to \textit{st-flash}:\\
+st-flash write main.bin 0x8000000. Finally, the game can be played using the
+touch screen.
 \newpage
 
 \subsection{Implementation of the game}
