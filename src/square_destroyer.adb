@@ -132,7 +132,7 @@ package body Square_Destroyer is
       G (B.X, B.Y) := C;
    end Swap;
 
-   procedure Get_Matching_Neighbourgs (
+   procedure Get_Matching_Neighbours (
                                   G : Grid;
                                   X : Integer; Step_X : Integer;
                                   Y : Integer; Step_Y : Integer;
@@ -151,7 +151,7 @@ package body Square_Destroyer is
          Tmp_X := Tmp_X + Step_X;
          Tmp_Y := Tmp_Y + Step_Y;
       end loop;
-   end Get_Matching_Neighbourgs;
+   end Get_Matching_Neighbours;
 
    procedure Is_Move_Legal (G : Grid; P : Point;
                             Combinations : in out PointSet.Set) is
@@ -160,11 +160,11 @@ package body Square_Destroyer is
       Matching_Vertical   : PointSet.Set;
       Legal               : Boolean := False;
    begin
-      Get_Matching_Neighbourgs (G, P.X - 1, -1, P.Y, 0, S,
+      Get_Matching_Neighbours (G, P.X - 1, -1, P.Y, 0, S,
                                 Matching_Horizontal);
-      Get_Matching_Neighbourgs (G, P.X + 1, 1, P.Y, 0, S, Matching_Horizontal);
-      Get_Matching_Neighbourgs (G, P.X, 0, P.Y - 1, -1, S, Matching_Vertical);
-      Get_Matching_Neighbourgs (G, P.X, 0, P.Y + 1, 1, S, Matching_Vertical);
+      Get_Matching_Neighbours (G, P.X + 1, 1, P.Y, 0, S, Matching_Horizontal);
+      Get_Matching_Neighbours (G, P.X, 0, P.Y - 1, -1, S, Matching_Vertical);
+      Get_Matching_Neighbours (G, P.X, 0, P.Y + 1, 1, S, Matching_Vertical);
       if PointSet.Length (Matching_Horizontal) >= 2 then
          Combinations := PointSet.Union (Matching_Horizontal, Combinations);
          Legal := True;

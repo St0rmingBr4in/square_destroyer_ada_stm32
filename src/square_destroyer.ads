@@ -124,7 +124,7 @@ private
       Post    => (G (A.X, A.Y) = G'Old (B.X, B.Y) and then
                   G (B.X, B.Y) = G'Old (A.X, A.Y));
 
-   procedure Get_Matching_Neighbourgs (G : Grid;
+   procedure Get_Matching_Neighbours (G : Grid;
                                        X : Integer; Step_X : Integer;
                                        Y : Integer; Step_Y : Integer;
                                        S : Square;
