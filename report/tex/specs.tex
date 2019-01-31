@@ -2,6 +2,8 @@
 
 \subsection{System requirements}
 
+The software has a E level criticality.
+
 \subsubsection{Axioms}
 
 \paragraph{The platform}
@@ -46,23 +48,88 @@ Cyan    & \#00FFFF \\
 \item The multiplier is reset to 1 at each move.
 \end{itemize}
 
-\subsection{Traceability}
+\subsubsection{Tools}
 
-\subsection{Software Architecture}
+\begin{itemize}
+    \item The compiler used is GNAT version 8.2.1 20181127. Flag used :
+        \begin{itemize}
+            \item -g: Debug Info
+            \item -gnatwa: All Warnings
+            \item -gnatQ: Don't quit. Generate ALI and tree files even if illegalities
+            \item -gnatw.X: Disable warnings for No\_Exception\_Propagation
+            \item -ffunction-sections: Create a linker section for each function
+            \item -fdata-section: create a linker section for each data
+            \item -gnatygO: Coding style warning
+        \end{itemize}
+        In debug mode:
+        \begin{itemize}
+            \item -O0: No optimization
+            \item -gnata: Enable assertions
+        \end{itemize}
+        In release mod:
+        \begin{itemize}
+            \item -O3: Optimizations
+            \item -gnatp: suppress checks
+            \item -gnatn: enable inlining
+        \end{itemize}
+    \item The development is done on a Linux system Linux 4.20.3-arch1-1-ARCH \#1 SMP
+PREEMPT Wed Jan 16 22:38:58 UTC 2019 x86\_64 GNU/Linux.
+\item The Target platform is a STM32F429I-Disco board.
+\end{itemize}
 
 \image{Flow.png}{0.5}{Flow Graph}
 
 \subsection{HLR}
 
-\subsubsection{Random \sq generator}
+\subsection{Traceability}
 
-We need a way to generate random \sqs.
+This documents describes the specification of our game. The HLR will be listed
+with a number, and the LLR referring to them will have the same number and an
+additional number separated by a dot.
 
-\subsubsection{Verification whether a move is legal or not}
+\subsection{Software Architecture}
 
-We need a way to verify the validity of a move performed by the player.
+\subsection{HLR}
+
+\begin{itemize}
+    \item 1. The grid of 8 per 6 squares will be displayed at all time.
+    \item 2. The grid will be randomly generated and should not have already
+        aligned squares of the same color.
+    \item 3. The score will be displayed in the top left corner, unless we are
+        in the "Game Over" state.
+    \item 4. The user must be able to swap two squares if it provokes an alignment
+        of three or more squares of the same color in the grid.
+    \item 5. If three or more squares of the same color are aligned, they shall be
+        replaced with the blocks directly above them. New colors will be
+        generated for the top block when needed.
+    \item 6. When a combination is done, the score must increase accordingly to the
+        formula described previously.
+    \item 7. When no move is possible, the game shall end displaying a message and
+        the final score, and then start over.
+\end{itemize}
 
 \subsection{LLR}
+\begin{itemize}
+    \item 1.1 Draw\_Grid must draw a 8 per 6 grid on the touchscreen of scar of
+        39 per 39 pixels.
+    \item 2.1 Init\_Grid must generate a random array of Squares.
+    \item 2.2 Init\_Grid must generate a grid that has no already existing
+        alignment of Squares of the same color.
+    \item 3.1 The Run procedure should display the score after updating the grid.
+    \item 3.1 The Run procedure should not display the score if the game has
+        ended.
+    \item 4.1 Is\_Move\_Legal shall indicate if a move provokes an alignment of
+        three or more squares of the same color.
+    \item 5.1 Is\_Move\_Legal should fill a WorkList of item to process when a
+        move is performed.
+    \item 5.2 Process\_Move should update the grid accordingly when a move is
+        performed making the square "fall".
+    \item 5.3 Process\_Move should verify and process if new Combination are
+        provoked by the mechanism of "falling".
+    \item 6.1 A side effect of Process\_Moves must be the update of the score.
+    \item 7.1 Update\_Grid should call Is\_Unsolvable after a move is performed
+        to say if a move is available.
+\end{itemize}
 
 \subsubsection{Random \sq generator}
 
@@ -82,7 +149,5 @@ The Is$\_$Move$\_$Legal procedure uses the helper procedure Get$\_$Matching$\_$N
 
 \subsubsection{``Black box'' testing}
 Tests were done by flashing the program on multiple boards and testing extensively.
-\subsubsection{``White box'' testing}
-No unit test were performed even though it would have been a good idea.
 
 \newpage
